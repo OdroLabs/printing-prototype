@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile — PrintCraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body style="background:var(--gray-25)">
+<div id="site-header"></div>
+<div class="container py-4" style="max-width:820px">
+  <div class="page-title-row"><div><h3 class="mb-1">My Profile</h3><p class="text-muted-2 mb-0">Manage your personal information and preferences.</p></div></div>
+
+  <div class="tabs-pro">
+    <div class="tab-item active" data-tab="personal">Personal Information</div>
+    <div class="tab-item" data-tab="notif">Notification Preference</div>
+    <div class="tab-item" data-tab="password">Password</div>
+    <div class="tab-item" data-tab="saved">Saved Information</div>
+  </div>
+
+  <div class="tab-pane" id="tab-personal">
+    <div class="card p-4">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="avatar-circle" style="width:64px;height:64px;font-size:22px" data-user-initials></div>
+        <div><div class="fw-bold fs-5" data-user-name></div><div class="text-muted-2" style="font-size:13px">Customer since Jan 2026</div></div>
+      </div>
+      <form onsubmit="return saveProfile(event)">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label">Full Name</label><input class="form-control" value="Nimal Perera"></div>
+          <div class="col-md-6"><label class="form-label">Email</label><input class="form-control" value="nimal.perera@gmail.com"></div>
+          <div class="col-md-6"><label class="form-label">Phone</label><input class="form-control" value="077 214 5632"></div>
+          <div class="col-md-6"><label class="form-label">WhatsApp</label><input class="form-control" value="077 214 5632"></div>
+        </div>
+        <button class="btn btn-primary mt-4">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="tab-pane d-none" id="tab-notif">
+    <div class="card p-4">
+      <h6 class="mb-3">Preferred Notification Channel</h6>
+      <div class="d-flex gap-3">
+        <div class="form-check"><input class="form-check-input" type="radio" name="np" id="npWa" checked><label class="form-check-label" for="npWa"><i class="fa-brands fa-whatsapp text-success me-1"></i>WhatsApp</label></div>
+        <div class="form-check"><input class="form-check-input" type="radio" name="np" id="npEmail"><label class="form-check-label" for="npEmail"><i class="fa-solid fa-envelope text-primary me-1"></i>Email</label></div>
+      </div>
+      <button class="btn btn-primary mt-4" onclick="showToast('Notification preference updated')">Save Preference</button>
+    </div>
+  </div>
+
+  <div class="tab-pane d-none" id="tab-password">
+    <div class="card p-4" style="max-width:420px">
+      <div class="mb-3"><label class="form-label">Current Password</label><input type="password" class="form-control" placeholder="••••••••"></div>
+      <div class="mb-3"><label class="form-label">New Password</label><input type="password" class="form-control" placeholder="••••••••"></div>
+      <div class="mb-3"><label class="form-label">Confirm New Password</label><input type="password" class="form-control" placeholder="••••••••"></div>
+      <button class="btn btn-primary" onclick="showToast('Password updated successfully')">Update Password</button>
+    </div>
+  </div>
+
+  <div class="tab-pane d-none" id="tab-saved">
+    <div class="card p-4">
+      <h6 class="mb-3">Saved Delivery Addresses</h6>
+      <div class="p-3 rounded-3 mb-2" style="border:1px solid var(--gray-200)"><strong>Home</strong><div class="text-muted-2" style="font-size:12.8px">No. 45, Galle Road, Colombo 06</div></div>
+      <div class="p-3 rounded-3" style="border:1px solid var(--gray-200)"><strong>Office</strong><div class="text-muted-2" style="font-size:12.8px">Level 3, WTC, Echelon Square, Colombo 01</div></div>
+      <button class="btn btn-light btn-sm mt-3" onclick="showToast('Add address form would open here')"><i class="fa-solid fa-plus"></i>Add New Address</button>
+    </div>
+  </div>
+</div>
+<div id="site-footer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+renderCustomerNav("","../");
+renderSiteFooter("../");
+document.querySelectorAll(".tab-item").forEach(t=>{
+  t.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-item").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".tab-pane").forEach(x=>x.classList.add("d-none"));
+    t.classList.add("active");
+    document.getElementById("tab-"+t.dataset.tab).classList.remove("d-none");
+  });
+});
+function saveProfile(e){ e.preventDefault(); showToast("Profile updated successfully"); return false; }
+</script>
+</body>
+</html>

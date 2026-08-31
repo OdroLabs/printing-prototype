@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Trail — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0" id="body"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+if(currentRole()!=="Super Admin"){
+  document.getElementById("body").innerHTML = "";
+}
+initAdminPage("audit-trail", {title:"Audit Trail", subtitle:"Restricted to Super Admin only.", breadcrumb:[{label:"Workspace"},{label:"Audit Trail"}], actionsHtml:`<span class="badge-pill badge-flagged">SUPER ADMIN ONLY</span>`});
+
+if(currentRole()!=="Super Admin"){
+  document.getElementById("body").innerHTML = `<div class="empty-state"><i class="fa-solid fa-lock"></i><h5>Access Restricted</h5><p>The Audit Trail is visible to Super Admin accounts only.</p><a href="../demo-login.html" class="btn btn-primary btn-sm">Switch to Super Admin</a></div>`;
+} else {
+  const actions = ["Approved Payment","Rejected Proof","Updated Role Permissions","Created Order","Reassigned Job","Deactivated Staff","Approved Closure Request","Updated System Settings"];
+  const users = STAFF;
+  let rows = "";
+  for(let i=0;i<18;i++){
+    const u = users[i%users.length]; const a = actions[i%actions.length];
+    const job = ORDERS[i%ORDERS.length].ref;
+    const day = 30 - (i%20);
+    rows += `<tr><td>${u.name}</td><td>${a}</td><td>${["Payment Verification","Job Pipeline","Roles & Permissions","Orders","My Queue","Staff & Hierarchy","Job Closure","System Settings"][i%8]}</td><td>${job}</td><td>${a} on ${job}</td><td>2026-08-${String(day).padStart(2,"0")}</td><td>${String(9+i%9).padStart(2,"0")}:${String(10+i*3%50).padStart(2,"0")} AM</td></tr>`;
+  }
+  document.getElementById("body").innerHTML = `
+  <div class="card p-3 mb-3">
+    <div class="row g-2">
+      <div class="col-md-3"><select class="form-select form-select-sm"><option>All Users</option>${STAFF.map(s=>`<option>${s.name}</option>`).join("")}</select></div>
+      <div class="col-md-3"><select class="form-select form-select-sm"><option>All Modules</option><option>Orders</option><option>Payment Verification</option><option>Roles & Permissions</option><option>System Settings</option></select></div>
+      <div class="col-md-3"><input type="date" class="form-control form-control-sm"></div>
+      <div class="col-md-3"><select class="form-select form-select-sm"><option>All Actions</option>${actions.map(a=>`<option>${a}</option>`).join("")}</select></div>
+    </div>
+  </div>
+  <div class="table-card"><div class="table-responsive"><table class="table-pro w-100">
+    <thead><tr><th>User</th><th>Action</th><th>Module</th><th>Job Reference</th><th>Description</th><th>Date</th><th>Time</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div></div>`;
+}
+</script>
+</body>
+</html>

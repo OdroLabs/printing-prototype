@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Queue — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="tabs-pro">
+      <div class="tab-item active" data-tab="mine">My Jobs</div>
+      <div class="tab-item" data-tab="team">Team Queue</div>
+      <div class="tab-item" data-tab="unassigned">Unassigned</div>
+      <div class="tab-item" data-tab="overdue">Overdue</div>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <input type="text" class="form-control" style="max-width:260px" id="searchBox" placeholder="Search job, customer...">
+        <div class="d-flex gap-2 flex-wrap">
+          <select class="form-select form-select-sm" id="stageFilter" style="width:170px"><option value="">All Stages</option></select>
+          <select class="form-select form-select-sm" id="typeFilter" style="width:150px"><option value="">All Job Types</option><option>Full Service</option><option>Design Only</option><option>Print Only</option></select>
+          <select class="form-select form-select-sm" id="assignFilter" style="width:150px"><option value="">All Assignments</option><option>Assigned to Me</option><option>Unassigned</option></select>
+          <input type="date" class="form-control form-control-sm" style="width:150px">
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table-pro w-100">
+          <thead><tr><th>Job Ref</th><th>Customer</th><th>Job Type</th><th>Product</th><th>Current Stage</th><th>Assigned To</th><th>Priority</th><th>SLA</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("my-queue", {title:"My Queue", subtitle:"Jobs assigned to you and your team.", breadcrumb:[{label:"Workspace"},{label:"My Queue"}]});
+document.getElementById("stageFilter").innerHTML += PIPELINE_STAGES.map(s=>`<option value="${s.key}">${s.label}</option>`).join("");
+
+function priorityBadge(p){ return p==='Urgent'?'badge-danger':p==='High'?'badge-pending':'badge-neutral'; }
+function slaBadge(s){ return s==='Overdue'?'badge-overdue':s==='Due Soon'?'badge-pending':'badge-completed'; }
+
+let activeTab = "mine";
+document.querySelectorAll(".tab-item").forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll(".tab-item").forEach(x=>x.classList.remove("active")); t.classList.add("active");
+  activeTab = t.dataset.tab; render();
+}));
+
+function render(){
+  let list = [...ORDERS];
+  if(activeTab==="mine") list = list.filter(o=>o.assignedDesigner===currentUserName() || o.assignedTechnician===currentUserName());
+  if(activeTab==="unassigned") list = list.filter(o=>!o.assignedDesigner && o.jobType!=="Print Only");
+  if(activeTab==="overdue") list = list.filter(o=>o.sla==="Overdue");
+  const q = document.getElementById("searchBox").value.toLowerCase();
+  if(q) list = list.filter(o=>o.ref.toLowerCase().includes(q)||o.customer.toLowerCase().includes(q));
+  const stage = document.getElementById("stageFilter").value;
+  if(stage) list = list.filter(o=>o.stage===stage);
+  const type = document.getElementById("typeFilter").value;
+  if(type) list = list.filter(o=>o.jobType===type);
+  list = list.slice(0,20);
+  document.getElementById("tbody").innerHTML = list.map(o=>`
+    <tr>
+      <td class="fw-bold">${o.ref}</td><td>${o.customer}</td><td>${o.jobType}</td><td>${o.product}</td>
+      <td>${badgeHtml(stageLabel(o.stage), stageBadgeClass(o.stage))}</td>
+      <td>${o.assignedDesigner || o.assignedTechnician || '<span class="text-muted-2">Unassigned</span>'}</td>
+      <td>${badgeHtml(o.priority, priorityBadge(o.priority))}</td>
+      <td>${badgeHtml(o.sla, slaBadge(o.sla))}</td>
+      <td>${o.orderDate}</td>
+      <td><a href="order-details.html?ref=${o.ref}" class="btn btn-light btn-sm">Open</a></td>
+    </tr>`).join("") || `<tr><td colspan="10"><div class="empty-state"><i class="fa-solid fa-clipboard-check"></i><h6>No jobs in this view</h6></div></td></tr>`;
+}
+document.getElementById("searchBox").addEventListener("input", render);
+document.getElementById("stageFilter").addEventListener("change", render);
+document.getElementById("typeFilter").addEventListener("change", render);
+document.getElementById("assignFilter").addEventListener("change", render);
+render();
+</script>
+</body>
+</html>

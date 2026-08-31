@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Details — PrintCraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+<div class="container py-4" id="pageBody"></div>
+<div id="site-footer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+renderCustomerNav("catalogue","../");
+renderSiteFooter("../");
+const iconMap = {"Business Cards":"fa-id-card","Flyers":"fa-file-lines","Brochures":"fa-book-open","Posters":"fa-image","Banners":"fa-flag","Stickers":"fa-star","Invitations":"fa-envelope-open-text","Packaging":"fa-box","Custom Printing":"fa-shapes"};
+const params = new URLSearchParams(location.search);
+const p = PRODUCTS.find(x=>x.id===params.get("id")) || PRODUCTS[0];
+let qty = 100;
+
+function render(){
+  document.getElementById("pageBody").innerHTML = `
+  <div class="breadcrumb-bar mb-3"><a href="catalogue.html">Catalogue</a> <i class="fa-solid fa-angle-right" style="font-size:9px"></i> <a href="catalogue.html?cat=${p.category}">${p.category}</a> <i class="fa-solid fa-angle-right" style="font-size:9px"></i> <span>${p.name}</span></div>
+  <div class="row g-5">
+    <div class="col-lg-6">
+      <div style="height:340px;background:linear-gradient(135deg,var(--brand-100),var(--brand-50));border-radius:20px;display:flex;align-items:center;justify-content:center">
+        <i class="fa-solid ${iconMap[p.category]||'fa-swatchbook'}" style="font-size:90px;color:var(--brand-500)"></i>
+      </div>
+      <div class="d-flex gap-2 mt-3">
+        ${[1,2,3,4].map(i=>`<div style="width:70px;height:70px;background:var(--gray-100);border-radius:10px;display:flex;align-items:center;justify-content:center;border:2px solid ${i===1?'var(--brand-400)':'transparent'}"><i class="fa-solid ${iconMap[p.category]||'fa-swatchbook'}" style="color:var(--gray-400)"></i></div>`).join("")}
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <span class="badge-pill badge-brand mb-2">${p.category}</span>
+      <h2>${p.name}</h2>
+      <p class="text-muted-2">${p.desc}</p>
+      <div class="rating-stars mb-3">★★★★★ <span class="text-muted-2" style="font-size:12.5px">(128 reviews)</span></div>
+
+      <div class="mb-3">
+        <label class="form-label">Size</label>
+        <div class="d-flex gap-2 flex-wrap">${p.sizes.map((s,i)=>`<span class="chip-filter ${i===0?'active':''}" style="cursor:pointer">${s}</span>`).join("")}</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Material</label>
+        <select class="form-select">${p.materials.map(m=>`<option>${m}</option>`).join("")}</select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Finishing</label>
+        <div class="d-flex gap-2 flex-wrap">${p.finishing.map((f,i)=>`<span class="chip-filter ${i===0?'active':''}" style="cursor:pointer">${f}</span>`).join("")}</div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Quantity</label>
+        <div class="d-flex align-items-center gap-2" style="max-width:180px">
+          <button class="btn btn-light btn-icon" onclick="changeQty(-1)"><i class="fa-solid fa-minus"></i></button>
+          <input type="text" class="form-control text-center" id="qtyInput" value="${qty}" readonly>
+          <button class="btn btn-light btn-icon" onclick="changeQty(1)"><i class="fa-solid fa-plus"></i></button>
+        </div>
+      </div>
+
+      <div class="card p-3 mb-4" style="background:var(--brand-50);border:none">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted-2" style="font-size:13px">Estimated Price</span>
+          <span class="fw-bold fs-4 text-primary" id="estPrice">${fmtMoney(p.price)}</span>
+        </div>
+        <div class="text-muted-2" style="font-size:11.5px">Final price confirmed at checkout based on full specification.</div>
+      </div>
+
+      <a href="../customer/create-order.html?product=${p.id}" class="btn btn-primary btn-lg w-100"><i class="fa-solid fa-bolt"></i>Start Order</a>
+    </div>
+  </div>
+
+  <div class="divider-x my-5"></div>
+  <h5 class="mb-3">You Might Also Like</h5>
+  <div class="row g-4" id="relatedGrid"></div>
+  `;
+  document.getElementById("relatedGrid").innerHTML = PRODUCTS.filter(x=>x.id!==p.id).slice(0,4).map(rp=>`
+    <div class="col-md-3 col-6">
+      <div class="card card-hover h-100">
+        <div style="height:120px;background:linear-gradient(135deg,var(--brand-100),var(--brand-50));border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:center">
+          <i class="fa-solid ${iconMap[rp.category]||'fa-swatchbook'}" style="font-size:28px;color:var(--brand-500)"></i>
+        </div>
+        <div class="p-3">
+          <div class="fw-bold" style="font-size:13px">${rp.name}</div>
+          <div class="text-primary fw-bold my-1" style="font-size:12.5px">${fmtMoney(rp.price)}</div>
+          <a href="product-details.html?id=${rp.id}" class="btn btn-light btn-sm w-100">View</a>
+        </div>
+      </div>
+    </div>`).join("");
+}
+function changeQty(delta){
+  qty = Math.max(1, qty + delta*(qty>=100?50:10));
+  document.getElementById("qtyInput").value = qty;
+  document.getElementById("estPrice").textContent = fmtMoney(Math.round(p.price * (qty/100)));
+}
+render();
+</script>
+</body>
+</html>

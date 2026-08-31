@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Price Management — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="table-card">
+      <div class="table-toolbar"><span class="text-muted-2" style="font-size:12.5px">Editable pricing table — click any cell to simulate an edit</span></div>
+      <div class="table-responsive"><table class="table-pro w-100">
+        <thead><tr><th>Product</th><th>Qty 1-99</th><th>Qty 100-499</th><th>Qty 500+</th><th>Rush Fee</th><th>Finishing Add-on</th><th>Discount</th><th>Actions</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("price-management", {title:"Price Management", subtitle:"Base pricing, quantity tiers, and discounts.", breadcrumb:[{label:"Catalogue & Content"},{label:"Price Management"}]});
+document.getElementById("tbody").innerHTML = PRODUCTS.map(p=>`
+  <tr>
+    <td class="fw-bold">${p.name}</td>
+    <td><input type="text" class="form-control form-control-sm" value="${fmtMoney(p.price)}" onchange="showToast('Price updated for ${p.name}')" style="width:120px"></td>
+    <td><input type="text" class="form-control form-control-sm" value="${fmtMoney(Math.round(p.price*0.9))}" onchange="showToast('Price updated for ${p.name}')" style="width:120px"></td>
+    <td><input type="text" class="form-control form-control-sm" value="${fmtMoney(Math.round(p.price*0.78))}" onchange="showToast('Price updated for ${p.name}')" style="width:120px"></td>
+    <td><input type="text" class="form-control form-control-sm" value="LKR 500" style="width:100px"></td>
+    <td><input type="text" class="form-control form-control-sm" value="LKR 300" style="width:100px"></td>
+    <td><input type="text" class="form-control form-control-sm" value="0%" style="width:70px"></td>
+    <td><button class="btn btn-light btn-sm" onclick="showToast('Price rule saved for ${p.name}')">Save</button></td>
+  </tr>`).join("");
+</script>
+</body>
+</html>

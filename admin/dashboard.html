@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0" id="pageContent">
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-6"><div class="stat-card"><div class="d-flex justify-content-between"><div class="stat-icon badge-brand"><i class="fa-solid fa-boxes-stacked"></i></div><span class="badge-pill badge-completed">+8%</span></div><div class="fs-3 fw-bold mt-2">47</div><div class="text-muted-2" style="font-size:12.5px">Active Jobs</div></div></div>
+      <div class="col-md-3 col-6"><div class="stat-card"><div class="d-flex justify-content-between"><div class="stat-icon badge-pending"><i class="fa-solid fa-money-check-dollar"></i></div><span class="badge-pill badge-pending">Action</span></div><div class="fs-3 fw-bold mt-2">9</div><div class="text-muted-2" style="font-size:12.5px">Pending Payments</div></div></div>
+      <div class="col-md-3 col-6"><div class="stat-card"><div class="d-flex justify-content-between"><div class="stat-icon badge-accent"><i class="fa-solid fa-pen-nib"></i></div><span class="badge-pill badge-neutral">Queue</span></div><div class="fs-3 fw-bold mt-2">6</div><div class="text-muted-2" style="font-size:12.5px">Awaiting Design Assignment</div></div></div>
+      <div class="col-md-3 col-6"><div class="stat-card"><div class="d-flex justify-content-between"><div class="stat-icon badge-completed"><i class="fa-solid fa-truck"></i></div><span class="badge-pill badge-completed">Today</span></div><div class="fs-3 fw-bold mt-2">5</div><div class="text-muted-2" style="font-size:12.5px">Dispatched Today</div></div></div>
+    </div>
+
+    <div class="card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0">Pipeline Overview</h6>
+        <a href="job-pipeline.html" class="btn btn-outline-primary btn-sm">Open Kanban <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <div class="row g-2 text-center" id="pipelineOverview"></div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-lg-6">
+        <div class="card p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="mb-0">Payment Verification Queue</h6><a href="payment-verification.html" class="text-muted-2" style="font-size:12.5px">View all</a></div>
+          <div id="payQueue" class="d-flex flex-column gap-2"></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3"><h6 class="mb-0">BDO Leaderboard</h6><a href="bdo-leaderboard.html" class="text-muted-2" style="font-size:12.5px">View all</a></div>
+          <div id="bdoLead" class="d-flex flex-column gap-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="table-card">
+          <div class="table-toolbar"><h6 class="mb-0">Recent Orders</h6><a href="orders.html" class="btn btn-light btn-sm">View All Orders</a></div>
+          <div class="table-responsive"><table class="table-pro w-100"><thead><tr><th>Job Ref</th><th>Customer</th><th>Product</th><th>Stage</th><th>Amount</th></tr></thead><tbody id="recentOrdersBody"></tbody></table></div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card p-4 mb-3">
+          <h6 class="mb-3">Recent Activity</h6>
+          <div class="timeline-v" style="padding-left:1.8rem">
+            <div class="tl-item done"><div class="tl-dot" style="left:-1.8rem"><i class="fa-solid fa-check"></i></div><div style="font-size:12.8px"><strong>Ruvini Athukorala</strong> completed QC on JOB-2026-00438</div><div class="text-muted-2" style="font-size:11px">10 min ago</div></div>
+            <div class="tl-item done"><div class="tl-dot" style="left:-1.8rem"><i class="fa-solid fa-check"></i></div><div style="font-size:12.8px"><strong>Nuwan Dias</strong> uploaded a new proof for JOB-2026-00461</div><div class="text-muted-2" style="font-size:11px">42 min ago</div></div>
+            <div class="tl-item done"><div class="tl-dot" style="left:-1.8rem"><i class="fa-solid fa-check"></i></div><div style="font-size:12.8px"><strong>Amali Gunasekara</strong> verified bank slip for JOB-2026-00417</div><div class="text-muted-2" style="font-size:11px">1 hr ago</div></div>
+            <div class="tl-item"><div class="tl-dot" style="left:-1.8rem"></div><div style="font-size:12.8px"><strong>Dinusha Perera</strong> referred a new customer</div><div class="text-muted-2" style="font-size:11px">2 hrs ago</div></div>
+          </div>
+        </div>
+        <div class="card p-4" style="background:var(--danger-50);border:1px solid #fecaca">
+          <div class="d-flex justify-content-between align-items-center mb-2"><h6 class="mb-0 text-danger">Overdue Jobs</h6><span class="badge-pill badge-overdue">3</span></div>
+          <div id="overdueList" class="d-flex flex-column gap-2"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+if(currentRole()==="Guest"||currentRole()==="Customer") setDemoRole("Super Admin","Suresh Fernando");
+initAdminPage("dashboard", {title:"Dashboard & Reports", subtitle:"Operational snapshot across the entire pipeline.", breadcrumb:[{label:"Workspace"},{label:"Dashboard"}]});
+
+document.getElementById("pipelineOverview").innerHTML = PIPELINE_STAGES.map(s=>{
+  const count = ORDERS.filter(o=>o.stage===s.key).length;
+  return `<div class="col"><div class="p-2 rounded-3" style="background:var(--gray-50)"><div class="fw-bold fs-5">${count}</div><div class="text-muted-2" style="font-size:10.5px">${s.short}</div></div></div>`;
+}).join("");
+
+document.getElementById("payQueue").innerHTML = ORDERS.filter(o=>o.paymentStatus==='Pending Verification').slice(0,4).map(o=>`
+  <div class="d-flex justify-content-between align-items-center p-2 rounded-3" style="border:1px solid var(--gray-200)">
+    <div><div class="fw-bold" style="font-size:12.8px">${o.ref}</div><div class="text-muted-2" style="font-size:11.5px">${o.customer} &middot; ${fmtMoney(o.amount)}</div></div>
+    <a href="payment-verification.html" class="btn btn-light btn-sm">Review</a>
+  </div>`).join("");
+
+document.getElementById("bdoLead").innerHTML = [
+  {name:"Dinusha Perera", jobs:14, rev:412000},
+  {name:"Harindra Silva", jobs:9, rev:268000},
+].map((b,i)=>`
+  <div class="d-flex justify-content-between align-items-center p-2 rounded-3" style="border:1px solid var(--gray-200)">
+    <div class="d-flex align-items-center gap-2"><span class="badge-pill badge-brand">#${i+1}</span><div><div class="fw-bold" style="font-size:12.8px">${b.name}</div><div class="text-muted-2" style="font-size:11.5px">${b.jobs} jobs referred</div></div></div>
+    <div class="fw-bold text-primary" style="font-size:12.5px">${fmtMoney(b.rev)}</div>
+  </div>`).join("");
+
+document.getElementById("recentOrdersBody").innerHTML = ORDERS.slice(0,6).map(o=>`
+  <tr onclick="location.href='order-details.html?ref=${o.ref}'" style="cursor:pointer">
+    <td class="fw-bold">${o.ref}</td><td>${o.customer}</td><td>${o.product}</td>
+    <td>${badgeHtml(stageLabel(o.stage), stageBadgeClass(o.stage))}</td><td>${fmtMoney(o.amount)}</td>
+  </tr>`).join("");
+
+document.getElementById("overdueList").innerHTML = ORDERS.filter(o=>o.sla==='Overdue').slice(0,3).map(o=>`
+  <div class="d-flex justify-content-between align-items-center">
+    <div style="font-size:12.5px"><strong>${o.ref}</strong> &middot; ${o.customer}</div>
+    <a href="order-details.html?ref=${o.ref}" class="btn btn-outline-danger btn-sm">View</a>
+  </div>`).join("");
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design In Progress — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0" id="body"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const order = getOrder(params.get("ref")) || ORDERS.find(o=>o.stage==="design_progress") || ORDERS[0];
+initAdminPage("orders", {title:"Design In Progress", subtitle:order.ref+" — "+order.product, breadcrumb:[{label:"Operations"},{label:"Orders", href:"orders.html"},{label:"Design Workflow"}]});
+
+document.getElementById("body").innerHTML = `
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card p-3 mb-3">
+      <div style="height:340px;background:linear-gradient(135deg,var(--brand-100),var(--brand-50));border-radius:14px;display:flex;align-items:center;justify-content:center">
+        <i class="fa-solid fa-swatchbook" style="font-size:70px;color:var(--brand-500)"></i>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <span class="badge-pill badge-progress">Version 2 — Draft</span>
+        <div class="d-flex gap-2">
+          <button class="btn btn-light btn-sm" onclick="showToast('Version history panel would open')">Version History</button>
+        </div>
+      </div>
+    </div>
+    <div class="card p-4">
+      <h6 class="mb-2">Customer Brief</h6>
+      <p class="text-muted-2" style="font-size:13.5px">"${order.instructions || 'Please use our brand colours (navy & gold). Keep it elegant and minimal, similar to the reference we shared.'}"</p>
+      <h6 class="mb-2 mt-3">Uploaded References</h6>
+      <div class="file-chip"><div class="fi-icon"><i class="fa-solid fa-image"></i></div><div class="flex-grow-1" style="font-size:13px;font-weight:600">brand_reference.jpg</div></div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card p-4 mb-3">
+      <h6 class="mb-3">Assigned Designer</h6>
+      <div class="d-flex align-items-center gap-3"><div class="avatar-circle">${initials(order.assignedDesigner||'Nuwan Dias')}</div><div><div class="fw-bold">${order.assignedDesigner||'Nuwan Dias'}</div><div class="text-muted-2" style="font-size:12px">Graphic Designer</div></div></div>
+    </div>
+    <div class="card p-4 mb-3">
+      <h6 class="mb-3">Internal Notes</h6>
+      <textarea class="form-control mb-2" rows="3" placeholder="Notes visible only to staff...">Working on typography refinement per client's earlier note.</textarea>
+      <button class="btn btn-light btn-sm" onclick="showToast('Note saved')">Save Note</button>
+    </div>
+    <div class="card p-4">
+      <h6 class="mb-3">Actions</h6>
+      <div class="d-grid gap-2">
+        <button class="btn btn-primary" onclick="showToast('New proof version uploaded (mock)')"><i class="fa-solid fa-upload"></i>Upload Proof</button>
+        <button class="btn btn-success" onclick="mockAction('Submitted for internal approval','internal-signoff.html?ref=${order.ref}')"><i class="fa-solid fa-check-double"></i>Submit for Internal Approval</button>
+        <button class="btn btn-outline-danger" onclick="showToast('Revision requested from designer','warning')"><i class="fa-solid fa-rotate-left"></i>Request Revision</button>
+      </div>
+    </div>
+  </div>
+</div>`;
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Settings — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card p-4 mb-4">
+          <h6 class="mb-3"><i class="fa-solid fa-building me-2 text-primary"></i>General</h6>
+          <div class="mb-3"><label class="form-label">Company Name</label><input class="form-control" value="PrintCraft Studio (Pvt) Ltd"></div>
+          <div class="mb-3"><label class="form-label">Logo</label><div class="d-flex align-items-center gap-3"><div class="mark" style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--brand-500),var(--brand-700));display:flex;align-items:center;justify-content:center;color:#fff"><i class="fa-solid fa-swatchbook"></i></div><button class="btn btn-light btn-sm" onclick="showToast('Logo upload dialog (mock)')">Change Logo</button></div></div>
+          <div class="row g-2">
+            <div class="col-md-6"><label class="form-label">Contact Email</label><input class="form-control" value="hello@printcraft.lk"></div>
+            <div class="col-md-6"><label class="form-label">Contact Phone</label><input class="form-control" value="011 234 5678"></div>
+          </div>
+        </div>
+        <div class="card p-4 mb-4">
+          <h6 class="mb-3"><i class="fa-solid fa-boxes-stacked me-2 text-primary"></i>Order Settings</h6>
+          <div class="mb-3"><label class="form-label">Job Reference Format</label><input class="form-control" value="JOB-{YYYY}-{00000}"></div>
+          <div class="mb-3"><label class="form-label">Default SLA (business days)</label><input type="number" class="form-control" value="5" style="max-width:140px"></div>
+        </div>
+        <div class="card p-4">
+          <h6 class="mb-3"><i class="fa-solid fa-bell me-2 text-primary"></i>Notification Settings</h6>
+          <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" checked><label class="form-check-label" style="font-size:13.5px"><i class="fa-brands fa-whatsapp text-success me-1"></i>Enable WhatsApp Notifications</label></div>
+          <div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked><label class="form-check-label" style="font-size:13.5px"><i class="fa-solid fa-envelope text-primary me-1"></i>Enable Email Notifications</label></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card p-4 mb-4">
+          <h6 class="mb-3"><i class="fa-solid fa-truck me-2 text-primary"></i>Delivery Settings</h6>
+          <div class="d-flex justify-content-between align-items-center p-2 rounded-3 mb-2" style="border:1px solid var(--gray-200)"><span style="font-size:13.5px"><i class="fa-solid fa-bolt text-primary me-1"></i>Uber Direct <span class="badge-pill badge-completed ms-1">API Connected</span></span><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+          <div class="d-flex justify-content-between align-items-center p-2 rounded-3 mb-2" style="border:1px solid var(--gray-200)"><span style="font-size:13.5px"><i class="fa-solid fa-motorcycle text-warning me-1"></i>PickMe Flash <span class="badge-pill badge-neutral ms-1">Manual Updates</span></span><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+          <div class="d-flex justify-content-between align-items-center p-2 rounded-3" style="border:1px solid var(--gray-200)"><span style="font-size:13.5px"><i class="fa-solid fa-truck-fast text-warning me-1"></i>Domex <span class="badge-pill badge-neutral ms-1">Manual Updates</span></span><div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" checked></div></div>
+        </div>
+        <div class="card p-4 mb-4">
+          <h6 class="mb-3"><i class="fa-solid fa-diagram-project me-2 text-primary"></i>Pipeline Settings</h6>
+          <div class="d-flex flex-column gap-1">
+            ${["Pending Payment Approval","Payment Verified","Design In Progress","Design Approved","Printing In Progress","Quality Check","Ready for Dispatch","Dispatched / Completed"].map((s,i)=>`<div class="d-flex justify-content-between align-items-center p-2 rounded-3" style="background:var(--gray-50)"><span style="font-size:12.8px"><strong>${i+1}.</strong> ${s}</span><i class="fa-solid fa-grip-lines text-muted-2"></i></div>`).join("")}
+          </div>
+        </div>
+        <div class="card p-4">
+          <h6 class="mb-3"><i class="fa-solid fa-user-gear me-2 text-primary"></i>Default Assignment</h6>
+          <div class="mb-3"><label class="form-label">Default Graphic Designer</label><select class="form-select">${STAFF.filter(s=>s.role==='Graphic Designer').map(s=>`<option>${s.name}</option>`).join("")}</select></div>
+          <div class="mb-0"><label class="form-label">Default Production Artist</label><select class="form-select">${STAFF.filter(s=>s.role==='Product Technician').map(s=>`<option>${s.name}</option>`).join("")}</select></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary mt-4" onclick="showToast('Settings saved successfully')"><i class="fa-solid fa-floppy-disk"></i>Save All Settings</button>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("system-settings", {title:"System Settings", subtitle:"Platform-wide configuration.", breadcrumb:[{label:"System"},{label:"System Settings"}]});
+</script>
+</body>
+</html>

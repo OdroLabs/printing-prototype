@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Management — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="tabs-pro">
+      <div class="tab-item active" data-tab="pages">Pages</div>
+      <div class="tab-item" data-tab="banners">Banners</div>
+      <div class="tab-item" data-tab="faqs">FAQs</div>
+      <div class="tab-item" data-tab="testi">Testimonials</div>
+      <div class="tab-item" data-tab="ann">Announcements</div>
+    </div>
+    <div id="tabBody"></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("content-management", {title:"Content Management", subtitle:"Manage storefront content.", breadcrumb:[{label:"Catalogue & Content"},{label:"Content Management"}]});
+
+function listCard(items, addLabel){
+  return `<div class="table-card"><div class="table-toolbar"><span class="text-muted-2" style="font-size:12.5px">${items.length} items</span><button class="btn btn-primary btn-sm" onclick="showToast('${addLabel} editor would open here')"><i class="fa-solid fa-plus"></i>${addLabel}</button></div>
+  <div class="table-responsive"><table class="table-pro w-100"><thead><tr><th>Title</th><th>Status</th><th>Last Updated</th><th>Actions</th></tr></thead>
+  <tbody>${items.map(it=>`<tr><td class="fw-bold">${it}</td><td>${badgeHtml('Published','badge-completed')}</td><td>2026-08-2${Math.floor(Math.random()*9)}</td><td><button class="btn btn-light btn-sm" onclick="showToast('Editing: ${it}')">Edit</button> <button class="btn btn-outline-danger btn-sm" onclick="showToast('${it} removed','danger')">Delete</button></td></tr>`).join("")}</tbody></table></div></div>`;
+}
+const tabs = {
+  pages: ()=>listCard(["Home","Services","About Us","Contact","Privacy Policy","Terms of Service"], "Add Page"),
+  banners: ()=>listCard(["Summer Print Sale Banner","New Year Promo Banner","Wedding Season Banner"], "Add Banner"),
+  faqs: ()=>listCard(["How long does design take?","Payment methods accepted?","Guest tracking?","Island-wide delivery?"], "Add FAQ"),
+  testi: ()=>listCard(["Ruwan Jayasuriya — Galle Textiles","Kavindi Fernando — Kandy","Nimal Perera — Colombo"], "Add Testimonial"),
+  ann: ()=>listCard(["Poya Day Holiday Notice","New PickMe Flash Delivery Option","Price List Update — Sept 2026"], "Add Announcement"),
+};
+function showTab(k){ document.getElementById("tabBody").innerHTML = tabs[k](); }
+document.querySelectorAll(".tab-item").forEach(t=>t.addEventListener("click",()=>{ document.querySelectorAll(".tab-item").forEach(x=>x.classList.remove("active")); t.classList.add("active"); showTab(t.dataset.tab); }));
+showTab("pages");
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Your Order — PrintCraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+<div class="container py-5" style="max-width:640px">
+  <div class="text-center mb-4">
+    <div class="stat-icon badge-brand mx-auto mb-3" style="width:56px;height:56px;font-size:22px"><i class="fa-solid fa-truck-fast"></i></div>
+    <h3>Track Your Order</h3>
+    <p class="text-muted-2">No account needed — enter your job reference and contact details below.</p>
+  </div>
+  <div class="card p-4" id="formCard">
+    <form onsubmit="return doTrack(event)">
+      <div class="mb-3"><label class="form-label">Job Reference Number</label><input type="text" class="form-control" placeholder="e.g. JOB-2026-00452" value="JOB-2026-00452" required></div>
+      <div class="mb-3"><label class="form-label">Name</label><input type="text" class="form-control" placeholder="Full name" value="Nimal Perera" required></div>
+      <div class="row g-3 mb-3">
+        <div class="col-md-6"><label class="form-label">Phone</label><input type="tel" class="form-control" placeholder="077 000 0000"></div>
+        <div class="col-md-6"><label class="form-label">Email</label><input type="email" class="form-control" placeholder="you@email.com"></div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-magnifying-glass"></i>Track Order</button>
+    </form>
+  </div>
+
+  <div class="card p-4 mt-4 d-none" id="resultCard">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div><div class="text-muted-2" style="font-size:12px">Job Reference</div><div class="fw-bold fs-5">JOB-2026-00452</div></div>
+      <span class="badge-pill badge-progress"><span class="dot"></span>Design In Progress</span>
+    </div>
+    <div class="text-muted-2 mb-3" style="font-size:13.5px"><i class="fa-solid fa-swatchbook me-1"></i>Premium Business Cards &middot; Full Service &middot; Qty 100</div>
+    <div class="progress-slim mb-4"><div class="bar" style="width:37%"></div></div>
+    <a href="../customer/order-tracking.html?ref=JOB-2026-00452&guest=1" class="btn btn-outline-primary w-100">View Full Tracking Timeline</a>
+  </div>
+</div>
+<div id="site-footer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+renderCustomerNav("","../");
+renderSiteFooter("../");
+function doTrack(e){
+  e.preventDefault();
+  showToast("Order found!");
+  document.getElementById("resultCard").classList.remove("d-none");
+  document.getElementById("resultCard").scrollIntoView({behavior:"smooth"});
+  return false;
+}
+</script>
+</body>
+</html>

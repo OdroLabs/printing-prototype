@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Management — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <input type="text" class="form-control" style="max-width:280px" id="searchBox" placeholder="Search customer name, email, phone...">
+      </div>
+      <div class="table-responsive"><table class="table-pro w-100">
+        <thead><tr><th>Customer</th><th>Email</th><th>Phone</th><th>WhatsApp</th><th>Total Orders</th><th>Active</th><th>Completed</th><th>Last Order</th><th>Actions</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("customers", {title:"Customer Management", subtitle:CUSTOMERS.length+" registered customers.", breadcrumb:[{label:"People"},{label:"Customers"}]});
+function render(){
+  const q = document.getElementById("searchBox").value.toLowerCase();
+  const list = CUSTOMERS.filter(c=>!q || c.name.toLowerCase().includes(q)||c.email.toLowerCase().includes(q)||c.phone.includes(q));
+  document.getElementById("tbody").innerHTML = list.map(c=>`
+    <tr>
+      <td class="d-flex align-items-center gap-2"><span class="avatar-circle" style="width:30px;height:30px;font-size:11px">${initials(c.name)}</span>${c.name}</td>
+      <td>${c.email}</td><td>${c.phone}</td><td>${c.whatsapp}</td>
+      <td>${c.orders}</td><td>${badgeHtml(c.active,'badge-progress')}</td><td>${badgeHtml(c.completed,'badge-completed')}</td>
+      <td>${c.lastOrder}</td>
+      <td><a href="customer-details.html?id=${c.id}" class="btn btn-light btn-sm">View</a></td>
+    </tr>`).join("");
+}
+document.getElementById("searchBox").addEventListener("input", render);
+render();
+</script>
+</body>
+</html>

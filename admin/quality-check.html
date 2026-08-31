@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quality Check — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0" id="body"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const order = getOrder(params.get("ref")) || ORDERS.find(o=>o.stage==="quality_check") || ORDERS[0];
+initAdminPage("orders", {title:"Final Quality Check", subtitle:order.ref+" — "+order.product, breadcrumb:[{label:"Operations"},{label:"Orders", href:"orders.html"},{label:"Quality Check"}]});
+
+const checklist = ["Colour accuracy","Alignment","Print quality","Material","Quantity","Finishing"];
+document.getElementById("body").innerHTML = `
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card p-3">
+      <div style="height:320px;background:linear-gradient(135deg,var(--brand-100),var(--brand-50));border-radius:14px;display:flex;align-items:center;justify-content:center">
+        <i class="fa-solid fa-print" style="font-size:70px;color:var(--brand-500)"></i>
+      </div>
+    </div>
+    <div class="card p-4 mt-3">
+      <h6 class="mb-2">Production Information</h6>
+      <div class="row g-2" style="font-size:13px">
+        <div class="col-md-6"><span class="text-muted-2">Product</span><br><strong>${order.product}</strong></div>
+        <div class="col-md-6"><span class="text-muted-2">Quantity</span><br><strong>${order.qty}</strong></div>
+        <div class="col-md-6"><span class="text-muted-2">Material</span><br><strong>${(PRODUCTS.find(p=>p.name===order.product)||{}).materials?.[0]||'—'}</strong></div>
+        <div class="col-md-6"><span class="text-muted-2">Technician</span><br><strong>${order.assignedTechnician}</strong></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card p-4">
+      <h6 class="mb-3">Quality Checklist</h6>
+      <div class="d-flex flex-column gap-2 mb-4">
+        ${checklist.map((c,i)=>`<div class="form-check"><input class="form-check-input" type="checkbox" id="qc${i}" checked><label class="form-check-label" for="qc${i}" style="font-size:13.5px">${c}</label></div>`).join("")}
+      </div>
+      <button class="btn btn-primary w-100" onclick="mockAction('Quality check completed','final-signoff.html?ref=${order.ref}')"><i class="fa-solid fa-clipboard-check"></i>Complete Quality Check</button>
+    </div>
+  </div>
+</div>`;
+</script>
+</body>
+</html>

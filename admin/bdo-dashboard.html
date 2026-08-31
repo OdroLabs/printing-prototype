@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BDO Dashboard — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="tabs-pro">
+      <div class="tab-item active">BDO Dashboard</div>
+      <a class="tab-item" href="bdo-leaderboard.html" style="text-decoration:none">Leaderboard</a>
+      <a class="tab-item" href="referrals.html" style="text-decoration:none">Referral Records</a>
+    </div>
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon badge-brand mb-2"><i class="fa-solid fa-boxes-stacked"></i></div><div class="fs-4 fw-bold">14</div><div class="text-muted-2" style="font-size:12.5px">My Jobs</div></div></div>
+      <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon badge-progress mb-2"><i class="fa-solid fa-calendar"></i></div><div class="fs-4 fw-bold">22</div><div class="text-muted-2" style="font-size:12.5px">Monthly Jobs</div></div></div>
+      <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon badge-completed mb-2"><i class="fa-solid fa-sack-dollar"></i></div><div class="fs-4 fw-bold">LKR 412,000</div><div class="text-muted-2" style="font-size:12.5px">Revenue Referred</div></div></div>
+      <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon badge-accent mb-2"><i class="fa-solid fa-bullseye"></i></div><div class="fs-4 fw-bold">73%</div><div class="text-muted-2" style="font-size:12.5px">Quota Achieved</div></div></div>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card p-4">
+          <h6 class="mb-3">Monthly Quota Progress</h6>
+          <div class="progress-slim mb-2"><div class="bar" style="width:73%"></div></div>
+          <div class="d-flex justify-content-between text-muted-2" style="font-size:12px"><span>22 / 30 jobs</span><span>73%</span></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card p-4">
+          <h6 class="mb-3">Conversion Rate</h6>
+          <div class="progress-slim mb-2"><div class="bar" style="width:61%;background:linear-gradient(90deg,var(--success-500),var(--success-600))"></div></div>
+          <div class="d-flex justify-content-between text-muted-2" style="font-size:12px"><span>61% leads converted</span><span>36 / 59 leads</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card p-4 mt-4">
+      <h6 class="mb-3">My Recent Referrals</h6>
+      <div class="table-responsive"><table class="table-pro w-100">
+        <thead><tr><th>Customer</th><th>Job</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+if(currentRole()==="Guest") setDemoRole("Business Development Officer","Dinusha Perera");
+initAdminPage("bdo-dashboard", {title:"Business Development & Referrals", subtitle:"Your personal BDO performance overview.", breadcrumb:[{label:"Sales & Business Dev"},{label:"BDO Dashboard"}]});
+document.getElementById("tbody").innerHTML = ORDERS.filter(o=>o.source==="BDO Brought").slice(0,6).map(o=>`
+  <tr><td>${o.customer}</td><td class="fw-bold">${o.ref}</td><td>${o.orderDate}</td><td>${badgeHtml(stageLabel(o.stage), stageBadgeClass(o.stage))}</td></tr>`).join("");
+</script>
+</body>
+</html>

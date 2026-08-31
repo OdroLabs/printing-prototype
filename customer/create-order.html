@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Order — PrintCraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body style="background:var(--gray-25)">
+<div id="site-header"></div>
+
+<div class="container py-4" style="max-width:920px">
+  <div class="wizard-steps" id="wizSteps"></div>
+  <div class="card p-4 p-md-5" id="stepBody"></div>
+</div>
+
+<div id="site-footer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+renderCustomerNav("","../");
+renderSiteFooter("../");
+if(currentRole()!=="Customer"){ setDemoRole("Customer","Nimal Perera"); }
+
+const STEPS = ["Service","Product","Job Details","Artwork","Summary","Payment","Confirmation"];
+const iconMap = {"Business Cards":"fa-id-card","Flyers":"fa-file-lines","Brochures":"fa-book-open","Posters":"fa-image","Banners":"fa-flag","Stickers":"fa-star","Invitations":"fa-envelope-open-text","Packaging":"fa-box","Custom Printing":"fa-shapes"};
+
+const params = new URLSearchParams(location.search);
+const state = {
+  step: 1,
+  service: params.get("service") === "full" ? "Full Service" : params.get("service")==="design" ? "Design Only" : params.get("service")==="print" ? "Print Only" : null,
+  product: params.get("product") ? PRODUCTS.find(p=>p.id===params.get("product")) : null,
+  qty: 100, size:"", material:"", finishing:"", instructions:"",
+  files: [],
+  isAi: null,
+  payMethod: "payhere",
+  jobRef: "JOB-2026-" + (500 + Math.floor(Math.random()*400)),
+};
+
+function renderWizSteps(){
+  document.getElementById("wizSteps").innerHTML = STEPS.map((s,i)=>{
+    const n = i+1;
+    const cls = n < state.step ? "done" : n === state.step ? "active" : "";
+    return `<div class="wiz-step ${cls}"><div class="wiz-circle">${n < state.step ? '<i class="fa-solid fa-check"></i>' : n}</div><span class="wiz-label d-none d-md-inline">${s}</span></div>${n<STEPS.length?'<div class="wiz-connector"></div>':''}`;
+  }).join("");
+}
+
+function goStep(n){ state.step = n; renderWizSteps(); renderStep(); window.scrollTo({top:0,behavior:"smooth"}); }
+window.goStep = goStep;
+
+function renderStep(){
+  const body = document.getElementById("stepBody");
+  if(state.step === 1) body.innerHTML = step1();
+  else if(state.step === 2) body.innerHTML = step2();
+  else if(state.step === 3) body.innerHTML = step3();
+  else if(state.step === 4) body.innerHTML = step4();
+  else if(state.step === 5) body.innerHTML = step5();
+  else if(state.step === 6) body.innerHTML = step6();
+  else if(state.step === 7) body.innerHTML = step7();
+}
+
+// ---------------- STEP 1: SERVICE ----------------
+function step1(){
+  const opts = [
+    {v:"Full Service", icon:"fa-layer-group", desc:"Design + Printing, handled end-to-end."},
+    {v:"Design Only", icon:"fa-pen-nib", desc:"Professional design, print-ready files."},
+    {v:"Print Only", icon:"fa-print", desc:"You supply artwork, we print."},
+  ];
+  return `
+  <h4 class="mb-1">Step 1 — Select Service</h4>
+  <p class="text-muted-2 mb-4">Choose how you'd like to work with us.</p>
+  <div class="row g-3">
+    ${opts.map(o=>`
+      <div class="col-md-4">
+        <div class="card p-4 text-center h-100 card-hover" style="cursor:pointer;border:2px solid ${state.service===o.v?'var(--brand-500)':'var(--gray-200)'}" onclick="selectService('${o.v}')">
+          <div class="stat-icon badge-brand mx-auto mb-2"><i class="fa-solid ${o.icon}"></i></div>
+          <div class="fw-bold mb-1">${o.v}</div>
+          <div class="text-muted-2" style="font-size:12.5px">${o.desc}</div>
+        </div>
+      </div>`).join("")}
+  </div>
+  <div class="d-flex justify-content-end mt-4">
+    <button class="btn btn-primary" ${state.service?"":"disabled"} onclick="goStep(2)">Continue<i class="fa-solid fa-arrow-right ms-2"></i></button>
+  </div>`;
+}
+function selectService(v){ state.service = v; renderStep(); }
+window.selectService = selectService;
+
+// ---------------- STEP 2: PRODUCT ----------------
+function step2(){
+  return `
+  <h4 class="mb-1">Step 2 — Select Product</h4>
+  <p class="text-muted-2 mb-4">Pick the product you'd like to order.</p>
+  <div class="row g-3">
+    ${PRODUCTS.map(p=>`
+      <div class="col-md-4 col-6">
+        <div class="card p-3 h-100 card-hover" style="cursor:pointer;border:2px solid ${state.product&&state.product.id===p.id?'var(--brand-500)':'var(--gray-200)'}" onclick='selectProduct("${p.id}")'>
+          <div style="height:80px;background:var(--brand-50);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:.6rem">
+            <i class="fa-solid ${iconMap[p.category]} text-primary" style="font-size:24px"></i>
+          </div>
+          <div class="fw-bold" style="font-size:13px">${p.name}</div>
+          <div class="text-primary fw-bold" style="font-size:12.5px">${fmtMoney(p.price)} <span class="text-muted-2 fw-normal" style="font-size:10.5px">${p.unit}</span></div>
+        </div>
+      </div>`).join("")}
+  </div>
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-light" onclick="goStep(1)"><i class="fa-solid fa-arrow-left me-2"></i>Back</button>
+    <button class="btn btn-primary" ${state.product?"":"disabled"} onclick="goStep(3)">Continue<i class="fa-solid fa-arrow-right ms-2"></i></button>
+  </div>`;
+}
+function selectProduct(id){ state.product = PRODUCTS.find(p=>p.id===id); state.size = state.product.sizes[0]; state.material = state.product.materials[0]; state.finishing = state.product.finishing[0]; renderStep(); }
+window.selectProduct = selectProduct;
+
+// ---------------- STEP 3: JOB DETAILS ----------------
+function step3(){
+  const p = state.product;
+  return `
+  <h4 class="mb-1">Step 3 — Job Details</h4>
+  <p class="text-muted-2 mb-4">Tell us your specifications for <strong>${p.name}</strong>.</p>
+  <div class="row g-3">
+    <div class="col-md-6"><label class="form-label">Product</label><input class="form-control" value="${p.name}" disabled></div>
+    <div class="col-md-6"><label class="form-label">Quantity</label><input type="number" class="form-control" id="fQty" value="${state.qty}" min="1"></div>
+    <div class="col-md-4"><label class="form-label">Size</label><select class="form-select" id="fSize">${p.sizes.map(s=>`<option ${s===state.size?"selected":""}>${s}</option>`).join("")}</select></div>
+    <div class="col-md-4"><label class="form-label">Material</label><select class="form-select" id="fMaterial">${p.materials.map(m=>`<option ${m===state.material?"selected":""}>${m}</option>`).join("")}</select></div>
+    <div class="col-md-4"><label class="form-label">Finishing</label><select class="form-select" id="fFinishing">${p.finishing.map(f=>`<option ${f===state.finishing?"selected":""}>${f}</option>`).join("")}</select></div>
+    <div class="col-12"><label class="form-label">Special Instructions</label><textarea class="form-control" id="fInstr" rows="3" placeholder="Any specific requirements, brand colours, notes for the designer...">${state.instructions}</textarea></div>
+  </div>
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-light" onclick="goStep(2)"><i class="fa-solid fa-arrow-left me-2"></i>Back</button>
+    <button class="btn btn-primary" onclick="saveStep3()">Continue<i class="fa-solid fa-arrow-right ms-2"></i></button>
+  </div>`;
+}
+function saveStep3(){
+  state.qty = document.getElementById("fQty").value || 100;
+  state.size = document.getElementById("fSize").value;
+  state.material = document.getElementById("fMaterial").value;
+  state.finishing = document.getElementById("fFinishing").value;
+  state.instructions = document.getElementById("fInstr").value;
+  goStep(4);
+}
+window.saveStep3 = saveStep3;
+
+// ---------------- STEP 4: ARTWORK UPLOAD ----------------
+function step4(){
+  const showAiQuestion = state.service === "Print Only";
+  return `
+  <h4 class="mb-1">Step 4 — Upload Artwork</h4>
+  <p class="text-muted-2 mb-4">${state.service==="Design Only" ? "Upload any reference images or briefs for our designer (optional)." : "Upload your print-ready artwork files."}</p>
+  <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <input type="file" id="fileInput" multiple style="display:none" onchange="handleFiles(this.files)">
+    <i class="fa-solid fa-cloud-arrow-up fs-2 text-primary mb-2"></i>
+    <div class="fw-bold">Click or drag files here to upload</div>
+    <div class="text-muted-2" style="font-size:12.5px">PDF, AI, PSD, JPG, PNG up to 50MB (UI demo — no real upload)</div>
+  </div>
+  <div class="mt-3" id="fileList">${renderFileChips()}</div>
+
+  ${showAiQuestion ? `
+  <div class="card p-4 mt-4" style="background:var(--warning-50);border:1px solid #fde68a">
+    <div class="d-flex align-items-start gap-2 mb-2">
+      <i class="fa-solid fa-circle-exclamation text-warning mt-1"></i>
+      <div>
+        <div class="fw-bold">Is this image AI generated?</div>
+        <div class="text-muted-2" style="font-size:12.5px">This affects how our team clears your file for print (print-readiness & AI content check).</div>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn ${state.isAi==='Yes'?'btn-warning':'btn-light'} btn-sm" onclick="setAi('Yes')">Yes, AI Generated</button>
+      <button class="btn ${state.isAi==='No'?'btn-warning':'btn-light'} btn-sm" onclick="setAi('No')">No, Original Artwork</button>
+    </div>
+  </div>` : ""}
+
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-light" onclick="goStep(3)"><i class="fa-solid fa-arrow-left me-2"></i>Back</button>
+    <button class="btn btn-primary" onclick="goStep(5)">Continue<i class="fa-solid fa-arrow-right ms-2"></i></button>
+  </div>`;
+}
+function renderFileChips(){
+  if(state.files.length===0) return "";
+  return state.files.map((f,i)=>`
+    <div class="file-chip">
+      <div class="fi-icon"><i class="fa-solid fa-file"></i></div>
+      <div class="flex-grow-1"><div style="font-size:13px;font-weight:600">${f.name}</div><div class="text-muted-2" style="font-size:11.5px">${f.size}</div></div>
+      <button class="btn btn-light btn-icon btn-sm" onclick="removeFile(${i})"><i class="fa-solid fa-xmark"></i></button>
+    </div>`).join("");
+}
+function handleFiles(fileList){
+  Array.from(fileList).forEach(f=>{
+    state.files.push({name:f.name, size:(f.size/1024).toFixed(0)+" KB"});
+  });
+  if(fileList.length===0) return;
+  document.getElementById("fileList").innerHTML = renderFileChips();
+  showToast(fileList.length + " file(s) added");
+}
+function removeFile(i){ state.files.splice(i,1); document.getElementById("fileList").innerHTML = renderFileChips(); }
+function setAi(v){ state.isAi = v; renderStep(); }
+window.handleFiles = handleFiles; window.removeFile = removeFile; window.setAi = setAi;
+
+// ---------------- STEP 5: SUMMARY ----------------
+function estimatedTotal(){
+  const p = state.product;
+  const base = p.price * Math.max(1, Math.round(state.qty/100));
+  return base;
+}
+function step5(){
+  const p = state.product;
+  const total = estimatedTotal();
+  return `
+  <h4 class="mb-1">Step 5 — Order Summary</h4>
+  <p class="text-muted-2 mb-4">Please review your order before confirming.</p>
+  <div class="row g-4">
+    <div class="col-md-7">
+      <div class="section-title-sm">Customer Information</div>
+      <div class="text-muted-2 mb-3" style="font-size:13.5px">${currentUserName()} &middot; ${currentUserName().toLowerCase().replace(' ','.')}@gmail.com &middot; 077 214 5632</div>
+      <div class="section-title-sm">Product & Specifications</div>
+      <table class="table-pro w-100 mb-3">
+        <tbody>
+          <tr><td class="text-muted-2">Service</td><td class="fw-bold">${state.service}</td></tr>
+          <tr><td class="text-muted-2">Product</td><td class="fw-bold">${p.name}</td></tr>
+          <tr><td class="text-muted-2">Quantity</td><td class="fw-bold">${state.qty}</td></tr>
+          <tr><td class="text-muted-2">Size</td><td class="fw-bold">${state.size}</td></tr>
+          <tr><td class="text-muted-2">Material</td><td class="fw-bold">${state.material}</td></tr>
+          <tr><td class="text-muted-2">Finishing</td><td class="fw-bold">${state.finishing}</td></tr>
+          ${state.isAi ? `<tr><td class="text-muted-2">AI Generated</td><td class="fw-bold">${state.isAi}</td></tr>` : ""}
+        </tbody>
+      </table>
+      <div class="section-title-sm">Uploaded Files (${state.files.length})</div>
+      <div>${state.files.length ? renderFileChips() : '<div class="text-muted-2" style="font-size:12.5px">No files uploaded.</div>'}</div>
+      ${state.instructions ? `<div class="section-title-sm mt-3">Special Instructions</div><div class="text-muted-2" style="font-size:13px">${state.instructions}</div>` : ""}
+    </div>
+    <div class="col-md-5">
+      <div class="card p-4" style="background:var(--gray-25)">
+        <div class="section-title-sm">Price Summary</div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:13.5px"><span class="text-muted-2">Subtotal</span><span>${fmtMoney(total)}</span></div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:13.5px"><span class="text-muted-2">Delivery (est.)</span><span>${fmtMoney(450)}</span></div>
+        <div class="divider-x"></div>
+        <div class="d-flex justify-content-between"><span class="fw-bold">Total</span><span class="fw-bold text-primary fs-5">${fmtMoney(total+450)}</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-light" onclick="goStep(4)"><i class="fa-solid fa-arrow-left me-2"></i>Back</button>
+    <button class="btn btn-primary" onclick="goStep(6)">Confirm Order<i class="fa-solid fa-arrow-right ms-2"></i></button>
+  </div>`;
+}
+
+// ---------------- STEP 6: PAYMENT ----------------
+function step6(){
+  const total = estimatedTotal()+450;
+  return `
+  <h4 class="mb-1">Step 6 — Payment</h4>
+  <p class="text-muted-2 mb-4">Total amount due: <strong class="text-primary">${fmtMoney(total)}</strong></p>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="card p-3 h-100" style="cursor:pointer;border:2px solid ${state.payMethod==='payhere'?'var(--brand-500)':'var(--gray-200)'}" onclick="setPay('payhere')">
+        <div class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-credit-card text-primary fs-5"></i><strong>PayHere</strong></div>
+        <div class="text-muted-2" style="font-size:12.5px">Pay instantly with your card or mobile wallet. Auto-verified.</div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card p-3 h-100" style="cursor:pointer;border:2px solid ${state.payMethod==='bank'?'var(--brand-500)':'var(--gray-200)'}" onclick="setPay('bank')">
+        <div class="d-flex align-items-center gap-2 mb-2"><i class="fa-solid fa-building-columns text-primary fs-5"></i><strong>Bank Transfer</strong></div>
+        <div class="text-muted-2" style="font-size:12.5px">Transfer manually and upload your bank slip for verification.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="payDetail">${state.payMethod==='payhere' ? payhereBlock() : bankBlock()}</div>
+
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-light" onclick="goStep(5)"><i class="fa-solid fa-arrow-left me-2"></i>Back</button>
+    <button class="btn btn-success" onclick="submitPayment()"><i class="fa-solid fa-lock"></i>${state.payMethod==='payhere' ? 'Pay Now (Mock)' : 'Submit & Upload Slip'}</button>
+  </div>`;
+}
+function payhereBlock(){
+  return `
+  <div class="card p-4" style="background:#0d1b3d;color:#fff;border-radius:16px;max-width:420px">
+    <div class="d-flex justify-content-between align-items-center mb-3"><strong>PayHere Secure Checkout</strong><i class="fa-brands fa-cc-visa fs-4"></i></div>
+    <div class="mb-3"><label style="font-size:11px;color:#9aa8d6">Card Number</label><input class="form-control" value="4111 •••• •••• 1234" disabled style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)"></div>
+    <div class="row g-2"><div class="col-6"><label style="font-size:11px;color:#9aa8d6">Expiry</label><input class="form-control" value="09/28" disabled style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)"></div><div class="col-6"><label style="font-size:11px;color:#9aa8d6">CVV</label><input class="form-control" value="•••" disabled style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)"></div></div>
+    <div class="text-center mt-3" style="font-size:11px;color:#9aa8d6">🔒 Mock PayHere interface — for prototype display only</div>
+  </div>`;
+}
+function bankBlock(){
+  return `
+  <div class="card p-4" style="max-width:500px;background:var(--gray-25)">
+    <div class="section-title-sm">Bank Transfer Details</div>
+    <table class="table-pro w-100 mb-3">
+      <tbody>
+        <tr><td class="text-muted-2">Account Name</td><td class="fw-bold">PrintCraft Studio (Pvt) Ltd</td></tr>
+        <tr><td class="text-muted-2">Account Number</td><td class="fw-bold">8001 234 5670</td></tr>
+        <tr><td class="text-muted-2">Bank</td><td class="fw-bold">Commercial Bank of Ceylon</td></tr>
+        <tr><td class="text-muted-2">Branch</td><td class="fw-bold">Colombo 03</td></tr>
+      </tbody>
+    </table>
+    <label class="form-label">Upload Bank Slip</label>
+    <div class="upload-zone py-3" onclick="showToast('Bank slip attached (mock)')">
+      <i class="fa-solid fa-receipt text-primary mb-1"></i>
+      <div style="font-size:12.8px" class="fw-bold">Click to upload bank slip</div>
+    </div>
+  </div>`;
+}
+function setPay(v){ state.payMethod = v; document.getElementById("payDetail").innerHTML = v==='payhere'?payhereBlock():bankBlock(); renderStep0Btn(); }
+function renderStep0Btn(){ /* refresh button label */ const btn = document.querySelector("#stepBody .btn-success"); if(btn) btn.innerHTML = `<i class="fa-solid fa-lock"></i>${state.payMethod==='payhere' ? 'Pay Now (Mock)' : 'Submit & Upload Slip'}`; }
+window.setPay = setPay;
+function submitPayment(){
+  showToast(state.payMethod==='payhere' ? "Payment successful via PayHere (mock)" : "Bank slip submitted — awaiting verification", "success");
+  goStep(7);
+}
+window.submitPayment = submitPayment;
+
+// ---------------- STEP 7: CONFIRMATION ----------------
+function step7(){
+  const total = estimatedTotal()+450;
+  return `
+  <div class="text-center py-3">
+    <div class="stat-icon badge-completed mx-auto mb-3" style="width:70px;height:70px;font-size:30px"><i class="fa-solid fa-circle-check"></i></div>
+    <h3>Order Successfully Submitted!</h3>
+    <p class="text-muted-2">Thank you — we've received your order and will begin processing shortly.</p>
+  </div>
+  <div class="card p-4 mx-auto" style="max-width:500px;background:var(--gray-25)">
+    <div class="d-flex justify-content-between mb-2"><span class="text-muted-2" style="font-size:13px">Job Reference</span><span class="fw-bold">${state.jobRef}</span></div>
+    <div class="d-flex justify-content-between mb-2"><span class="text-muted-2" style="font-size:13px">Payment Status</span>${badgeHtml(state.payMethod==='payhere'?'Auto Verified':'Pending Verification', state.payMethod==='payhere'?'badge-completed':'badge-pending')}</div>
+    <div class="d-flex justify-content-between mb-2"><span class="text-muted-2" style="font-size:13px">Current Stage</span>${badgeHtml(state.payMethod==='payhere'?'Payment Verified':'Pending Payment Approval', state.payMethod==='payhere'?'badge-progress':'badge-pending')}</div>
+    <div class="divider-x"></div>
+    <div class="d-flex justify-content-between mb-2"><span class="text-muted-2" style="font-size:13px">Product</span><span>${state.product.name}</span></div>
+    <div class="d-flex justify-content-between mb-2"><span class="text-muted-2" style="font-size:13px">Quantity</span><span>${state.qty}</span></div>
+    <div class="d-flex justify-content-between"><span class="fw-bold">Total</span><span class="fw-bold text-primary">${fmtMoney(total)}</span></div>
+  </div>
+  <div class="text-center mt-4">
+    <a href="order-tracking.html?ref=${state.jobRef}" class="btn btn-primary btn-lg"><i class="fa-solid fa-location-crosshairs"></i>Track My Order</a>
+  </div>
+  <div class="text-center mt-3"><a href="dashboard.html" class="text-muted-2" style="font-size:13px">Back to Dashboard</a></div>`;
+}
+
+// init
+if(!state.service) state.step = 1;
+else if(!state.product) state.step = 2;
+renderWizSteps();
+renderStep();
+
+document.addEventListener("dragover", e=>{ if(e.target.id==="dropZone"){ e.preventDefault(); e.target.classList.add("dragover"); }});
+document.addEventListener("drop", e=>{ if(e.target.id==="dropZone"){ e.preventDefault(); e.target.classList.remove("dragover"); handleFiles(e.dataTransfer.files); }});
+</script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Verification — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="tabs-pro">
+      <div class="tab-item active" data-tab="bank">Bank Slip Queue</div>
+      <div class="tab-item" data-tab="problem">Reported Problem Queue</div>
+      <div class="tab-item" data-tab="payhere">PayHere Queue</div>
+    </div>
+    <div id="tabBody"></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("payment-verification", {title:"Payment Verification", subtitle:"Verify bank transfers, resolve payment issues, and monitor PayHere.", breadcrumb:[{label:"Finance"},{label:"Payment Verification"}]});
+
+function bankTab(){
+  const rows = ORDERS.filter(o=>o.paymentMethod==="Bank Transfer").slice(0,8);
+  return `<div class="table-card"><div class="table-responsive"><table class="table-pro w-100">
+    <thead><tr><th>Job Ref</th><th>Customer</th><th>Amount</th><th>Uploaded</th><th>Slip</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map(o=>`
+      <tr>
+        <td class="fw-bold">${o.ref}</td><td>${o.customer}</td><td>${fmtMoney(o.amount)}</td><td>${o.orderDate}</td>
+        <td><a href="#" onclick="showToast('Opening slip preview (mock)');return false;"><i class="fa-solid fa-receipt me-1"></i>View Slip</a></td>
+        <td>${badgeHtml(o.paymentStatus, o.paymentStatus==='Verified'?'badge-completed':'badge-pending')}</td>
+        <td>
+          ${o.paymentStatus!=='Verified' ? `
+          <button class="btn btn-success btn-sm" onclick="showToast('Payment approved for ${o.ref}')">Approve</button>
+          <button class="btn btn-outline-danger btn-sm" onclick="showToast('Payment rejected for ${o.ref}','danger')">Reject</button>
+          <button class="btn btn-light btn-sm" onclick="showToast('Flagged as mismatch','warning')">Flag Mismatch</button>` : `<span class="text-muted-2" style="font-size:12px">Verified</span>`}
+        </td>
+      </tr>`).join("")}</tbody>
+  </table></div></div>`;
+}
+function problemTab(){
+  const rows = [
+    {job:"JOB-2026-00447", customer:"Chathura Bandara", method:"PayHere", problem:"Payment deducted but order shows unpaid", evidence:"Screenshot attached", date:"2026-08-28", status:"Open"},
+    {job:"JOB-2026-00433", customer:"Sanduni Rathnayake", method:"Bank Transfer", problem:"Uploaded wrong bank slip", evidence:"Slip re-upload requested", date:"2026-08-26", status:"Open"},
+  ];
+  return `<div class="table-card"><div class="table-responsive"><table class="table-pro w-100">
+    <thead><tr><th>Job</th><th>Customer</th><th>Method</th><th>Problem</th><th>Evidence</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr><td class="fw-bold">${r.job}</td><td>${r.customer}</td><td>${r.method}</td><td>${r.problem}</td><td>${r.evidence}</td><td>${r.date}</td><td>${badgeHtml(r.status,'badge-pending')}</td>
+      <td><button class="btn btn-light btn-sm" onclick="showToast('Opening review panel (mock)')">Review</button> <button class="btn btn-success btn-sm" onclick="showToast('Marked resolved')">Resolve</button> <button class="btn btn-outline-primary btn-sm" onclick="showToast('Info request sent to customer')">Request Info</button></td></tr>`).join("")}</tbody>
+  </table></div></div>`;
+}
+function payhereTab(){
+  const rows = ORDERS.filter(o=>o.paymentMethod==="PayHere").slice(0,8);
+  return `<div class="table-card"><div class="table-responsive"><table class="table-pro w-100">
+    <thead><tr><th>Transaction ID</th><th>Job Ref</th><th>Customer</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+    <tbody>${rows.map((o,i)=>`<tr><td>TXN-2026-${7000+i}</td><td class="fw-bold">${o.ref}</td><td>${o.customer}</td><td>${fmtMoney(o.amount)}</td><td>${o.orderDate}</td><td>${badgeHtml('Auto Verified','badge-completed')}</td></tr>`).join("")}</tbody>
+  </table></div></div>`;
+}
+const tabs = {bank:bankTab, problem:problemTab, payhere:payhereTab};
+function showTab(k){ document.getElementById("tabBody").innerHTML = tabs[k](); }
+document.querySelectorAll(".tab-item").forEach(t=>t.addEventListener("click",()=>{ document.querySelectorAll(".tab-item").forEach(x=>x.classList.remove("active")); t.classList.add("active"); showTab(t.dataset.tab); }));
+showTab("bank");
+</script>
+</body>
+</html>

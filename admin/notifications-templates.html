@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications & Templates — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="tabs-pro">
+      <div class="tab-item active" data-tab="email">Email Templates</div>
+      <div class="tab-item" data-tab="wa">WhatsApp Templates</div>
+    </div>
+    <div id="tabBody"></div>
+  </div>
+</div>
+
+<div class="modal fade" id="editTplModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="tplModalTitle">Edit Template</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <label class="form-label">Subject / Header</label>
+        <input class="form-control mb-3" id="tplSubject">
+        <label class="form-label">Message Body</label>
+        <textarea class="form-control" rows="6" id="tplBody"></textarea>
+        <div class="text-muted-2 mt-2" style="font-size:11.5px">Available variables: {{customer_name}}, {{job_reference}}, {{product_name}}, {{stage_name}}</div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="bootstrap.Modal.getInstance(document.getElementById('editTplModal')).hide();showToast('Template saved')">Save Template</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("notifications-templates", {title:"Notifications & Templates", subtitle:"Automated messages sent to customers at each stage.", breadcrumb:[{label:"System"},{label:"Notifications & Templates"}]});
+
+function tplTab(channel){
+  return `<div class="table-card"><div class="table-responsive"><table class="table-pro w-100">
+    <thead><tr><th>Template</th><th>Channel</th><th>Status</th><th>Last Updated</th><th>Actions</th></tr></thead>
+    <tbody>${NOTIFICATION_TEMPLATES.map(t=>`
+      <tr><td class="fw-bold">${t}</td><td>${channel}</td><td>${badgeHtml('Active','badge-completed')}</td><td>2026-08-1${Math.floor(Math.random()*9)}</td>
+      <td><button class="btn btn-light btn-sm" onclick="openTpl('${t}')">Edit</button></td></tr>`).join("")}</tbody>
+  </table></div></div>`;
+}
+const tabs = { email:()=>tplTab("Email"), wa:()=>tplTab("WhatsApp") };
+function showTab(k){ document.getElementById("tabBody").innerHTML = tabs[k](); }
+document.querySelectorAll(".tab-item").forEach(t=>t.addEventListener("click",()=>{ document.querySelectorAll(".tab-item").forEach(x=>x.classList.remove("active")); t.classList.add("active"); showTab(t.dataset.tab); }));
+showTab("email");
+
+function openTpl(name){
+  document.getElementById("tplModalTitle").textContent = "Edit: "+name;
+  document.getElementById("tplSubject").value = name+" — {{job_reference}}";
+  document.getElementById("tplBody").value = `Hi {{customer_name}}, your order {{job_reference}} for {{product_name}} has an update: ${name}. Track your order anytime from your dashboard.`;
+  new bootstrap.Modal(document.getElementById("editTplModal")).show();
+}
+window.openTpl = openTpl;
+</script>
+</body>
+</html>

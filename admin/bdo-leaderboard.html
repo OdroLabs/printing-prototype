@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BDO Leaderboard — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="tabs-pro">
+      <a class="tab-item" href="bdo-dashboard.html" style="text-decoration:none">BDO Dashboard</a>
+      <div class="tab-item active">Leaderboard</div>
+      <a class="tab-item" href="referrals.html" style="text-decoration:none">Referral Records</a>
+    </div>
+    <div class="table-card">
+      <div class="table-responsive"><table class="table-pro w-100">
+        <thead><tr><th>Rank</th><th>BDO</th><th>Jobs Referred</th><th>Revenue Generated</th><th>Conversion</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("bdo-dashboard", {title:"BDO Leaderboard", subtitle:"Ranked by revenue referred this month.", breadcrumb:[{label:"Sales & Business Dev"},{label:"Leaderboard"}]});
+const board = [
+  {name:"Dinusha Perera", jobs:22, rev:412000, conv:"61%"},
+  {name:"Harindra Silva", jobs:15, rev:268000, conv:"48%"},
+];
+document.getElementById("tbody").innerHTML = board.map((b,i)=>`
+  <tr>
+    <td>${badgeHtml('#'+(i+1), i===0?'badge-brand':'badge-neutral')}</td>
+    <td class="d-flex align-items-center gap-2"><span class="avatar-circle" style="width:30px;height:30px;font-size:11px">${initials(b.name)}</span>${b.name}</td>
+    <td>${b.jobs}</td><td class="fw-bold">${fmtMoney(b.rev)}</td><td>${b.conv}</td>
+  </tr>`).join("");
+</script>
+</body>
+</html>

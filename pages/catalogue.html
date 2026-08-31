@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalogue — PrintCraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+<div id="site-header"></div>
+
+<div class="container py-4">
+  <div class="page-title-row">
+    <div><div class="section-eyebrow">Catalogue</div><h2 class="mb-0">Browse Our Products</h2></div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-3">
+      <div class="card p-3 mb-3">
+        <label class="form-label">Search</label>
+        <input type="text" class="form-control mb-3" id="searchBox" placeholder="Search products...">
+        <label class="form-label">Category</label>
+        <div id="categoryList" class="d-flex flex-column gap-1"></div>
+      </div>
+      <div class="card p-3">
+        <label class="form-label">Sort By</label>
+        <select class="form-select" id="sortSelect">
+          <option value="default">Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name">Name (A-Z)</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-muted-2" id="resultCount" style="font-size:13px"></span>
+        <div class="d-flex gap-2 flex-wrap" id="quickFilters"></div>
+      </div>
+      <div class="row g-4" id="productGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+renderCustomerNav("catalogue","../");
+renderSiteFooter("../");
+const iconMap = {"Business Cards":"fa-id-card","Flyers":"fa-file-lines","Brochures":"fa-book-open","Posters":"fa-image","Banners":"fa-flag","Stickers":"fa-star","Invitations":"fa-envelope-open-text","Packaging":"fa-box","Custom Printing":"fa-shapes"};
+let activeCategory = "All";
+let sortMode = "default";
+
+function renderCategories(){
+  const el = document.getElementById("categoryList");
+  const cats = ["All", ...CATEGORIES];
+  el.innerHTML = cats.map(c => `<div class="chip-filter ${activeCategory===c?'active':''}" style="text-align:left;cursor:pointer" onclick="setCategory('${c}')">${c}</div>`).join("");
+}
+function setCategory(c){ activeCategory = c; renderCategories(); renderProducts(); }
+window.setCategory = setCategory;
+
+function renderProducts(){
+  let list = PRODUCTS.filter(p => activeCategory==="All" || p.category===activeCategory);
+  const q = document.getElementById("searchBox").value.toLowerCase();
+  if(q) list = list.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+  if(sortMode==="price-asc") list = [...list].sort((a,b)=>a.price-b.price);
+  if(sortMode==="price-desc") list = [...list].sort((a,b)=>b.price-a.price);
+  if(sortMode==="name") list = [...list].sort((a,b)=>a.name.localeCompare(b.name));
+  document.getElementById("resultCount").textContent = `${list.length} products found`;
+  document.getElementById("productGrid").innerHTML = list.map(p => `
+    <div class="col-md-4 col-6">
+      <div class="card card-hover h-100">
+        <div style="height:150px;background:linear-gradient(135deg,var(--brand-100),var(--brand-50));border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:center">
+          <i class="fa-solid ${iconMap[p.category]||'fa-swatchbook'}" style="font-size:38px;color:var(--brand-500)"></i>
+        </div>
+        <div class="p-3">
+          <div class="small-caps mb-1">${p.category}</div>
+          <div class="fw-bold" style="font-size:14px">${p.name}</div>
+          <div class="text-primary fw-bold my-1" style="font-size:13.5px">${fmtMoney(p.price)} <span class="text-muted-2 fw-normal" style="font-size:11px">${p.unit}</span></div>
+          <a href="product-details.html?id=${p.id}" class="btn btn-light btn-sm w-100 mt-1">View Product</a>
+        </div>
+      </div>
+    </div>`).join("") || `<div class="col-12"><div class="empty-state"><i class="fa-solid fa-box-open"></i><h6>No products found</h6><p>Try a different search term or category.</p></div></div>`;
+}
+document.getElementById("searchBox").addEventListener("input", renderProducts);
+document.getElementById("sortSelect").addEventListener("change", (e)=>{ sortMode = e.target.value; renderProducts(); });
+document.getElementById("quickFilters").innerHTML = CATEGORIES.slice(0,4).map(c=>`<span class="chip-filter" style="cursor:pointer" onclick="setCategory('${c}')">${c}</span>`).join("");
+renderCategories();
+renderProducts();
+</script>
+</body>
+</html>

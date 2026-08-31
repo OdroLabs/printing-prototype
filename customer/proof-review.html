@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Proof Review — PrintCraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body style="background:var(--gray-25)">
+<div id="site-header"></div>
+<div class="container py-4" style="max-width:900px">
+  <div class="breadcrumb-bar"><a href="dashboard.html">Dashboard</a> <i class="fa-solid fa-angle-right" style="font-size:9px"></i> <span>Proof Review</span></div>
+  <div class="page-title-row">
+    <div><h3 class="mb-1" id="jobRefTitle">JOB-2026-00461</h3><p class="text-muted-2 mb-0">Wedding Invitation Cards &middot; Version 2</p></div>
+    <span class="badge-pill badge-pending"><span class="dot"></span>Awaiting Your Review</span>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card p-3 mb-3">
+        <div style="height:380px;background:linear-gradient(135deg,var(--brand-100),var(--brand-50));border-radius:14px;display:flex;align-items:center;justify-content:center">
+          <i class="fa-solid fa-envelope-open-text" style="font-size:70px;color:var(--brand-500)"></i>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <div class="chip-filter active">Version 2 (Current)</div>
+        <div class="chip-filter" style="cursor:pointer" onclick="location.href='#v1'">Version 1</div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card p-4 mb-3">
+        <div class="d-flex justify-content-between mb-2" style="font-size:13px"><span class="text-muted-2">Job Reference</span><span class="fw-bold">JOB-2026-00461</span></div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:13px"><span class="text-muted-2">Product</span><span>Wedding Invitation Cards</span></div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:13px"><span class="text-muted-2">Version</span><span>2</span></div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:13px"><span class="text-muted-2">Uploaded</span><span>2026-08-29</span></div>
+        <div class="divider-x"></div>
+        <div class="text-muted-2 mb-1" style="font-size:12px">Designer's Note</div>
+        <div style="font-size:13px">"Updated the gold foil accents and adjusted the font size per your earlier feedback. Let me know if this works!" — Ashani Wijeratne</div>
+      </div>
+      <div class="d-grid gap-2">
+        <button class="btn btn-success" onclick="approveProof()"><i class="fa-solid fa-check"></i>Approve</button>
+        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#changesModal"><i class="fa-solid fa-rotate-left"></i>Request Changes</button>
+        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal"><i class="fa-solid fa-xmark"></i>Reject</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Request Changes Modal -->
+<div class="modal fade" id="changesModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Request Changes</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <label class="form-label">What would you like changed?</label>
+        <textarea class="form-control" rows="4" placeholder="Describe the changes you'd like the designer to make..."></textarea>
+      </div>
+      <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn btn-warning" onclick="submitChanges()">Submit Revision Request</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center pt-4">
+        <div class="stat-icon badge-danger mx-auto mb-3" style="width:56px;height:56px"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h5>Reject This Proof?</h5>
+        <p class="text-muted-2" style="font-size:13.5px">This will escalate the job to our management team for review. Please only reject if the design significantly misses your brief.</p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center pb-4"><button class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn btn-danger" onclick="rejectProof()">Confirm Rejection</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+renderCustomerNav("","../");
+renderSiteFooter("../");
+const params = new URLSearchParams(location.search);
+document.getElementById("jobRefTitle").textContent = params.get("ref") || "JOB-2026-00461";
+function approveProof(){ mockAction("Proof approved! Moving to printing stage.", "order-tracking.html?ref="+encodeURIComponent(params.get('ref')||'JOB-2026-00461')); }
+function submitChanges(){
+  bootstrap.Modal.getInstance(document.getElementById("changesModal")).hide();
+  showToast("Revision request submitted to designer","info");
+  setTimeout(()=>location.href="dashboard.html",900);
+}
+function rejectProof(){
+  bootstrap.Modal.getInstance(document.getElementById("rejectModal")).hide();
+  showToast("Proof rejected — escalated to management for review","danger");
+  setTimeout(()=>location.href="dashboard.html",900);
+}
+</script>
+</body>
+</html>

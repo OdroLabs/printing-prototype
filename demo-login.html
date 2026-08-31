@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Login — PrintCraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body style="background:var(--gray-25)">
+<div class="container py-5">
+  <div class="text-center mb-5">
+    <a href="index.html" class="brand-logo justify-content-center mb-3"><span class="mark"><i class="fa-solid fa-swatchbook"></i></span>PrintCraft Studio</a>
+    <h2>Demo Login</h2>
+    <p class="text-muted-2">This is a UI prototype — no real authentication. Pick a role below to explore its dashboard.</p>
+  </div>
+
+  <div class="row g-3 justify-content-center" style="max-width:1100px;margin:0 auto">
+    <div class="col-md-4 col-6">
+      <div class="demo-user-card" onclick="loginAs('Super Admin','Suresh Fernando','admin/dashboard.html')">
+        <div class="demo-user-icon" style="background:#fdf2f8;color:#be185d"><i class="fa-solid fa-shield-halved"></i></div>
+        <h6 class="mb-1">Super Admin</h6><p class="text-muted-2 mb-0" style="font-size:12.5px">Full access, incl. Audit Trail</p>
+      </div>
+    </div>
+    <div class="col-md-4 col-6">
+      <div class="demo-user-card" onclick="loginAs('Management Officer','Priyantha Ranasinghe','admin/dashboard.html')">
+        <div class="demo-user-icon" style="background:var(--brand-50);color:var(--brand-600)"><i class="fa-solid fa-briefcase"></i></div>
+        <h6 class="mb-1">Management Officer</h6><p class="text-muted-2 mb-0" style="font-size:12.5px">Operations + approvals</p>
+      </div>
+    </div>
+    <div class="col-md-4 col-6">
+      <div class="demo-user-card" onclick="loginAs('Graphic Designer','Nuwan Dias','admin/my-queue.html')">
+        <div class="demo-user-icon" style="background:#fff7ed;color:var(--accent-600)"><i class="fa-solid fa-pen-nib"></i></div>
+        <h6 class="mb-1">Graphic Designer</h6><p class="text-muted-2 mb-0" style="font-size:12.5px">Design-related screens</p>
+      </div>
+    </div>
+    <div class="col-md-4 col-6">
+      <div class="demo-user-card" onclick="loginAs('Product Technician','Ruvini Athukorala','admin/my-queue.html')">
+        <div class="demo-user-icon" style="background:var(--success-50);color:var(--success-700)"><i class="fa-solid fa-gears"></i></div>
+        <h6 class="mb-1">Product Technician</h6><p class="text-muted-2 mb-0" style="font-size:12.5px">Production screens</p>
+      </div>
+    </div>
+    <div class="col-md-4 col-6">
+      <div class="demo-user-card" onclick="loginAs('Business Development Officer','Dinusha Perera','admin/bdo-dashboard.html')">
+        <div class="demo-user-icon" style="background:var(--warning-50);color:var(--warning-700)"><i class="fa-solid fa-bullhorn"></i></div>
+        <h6 class="mb-1">Business Dev. Officer</h6><p class="text-muted-2 mb-0" style="font-size:12.5px">BDO screens</p>
+      </div>
+    </div>
+    <div class="col-md-4 col-6">
+      <div class="demo-user-card" onclick="loginAs('Customer','Nimal Perera','customer/dashboard.html')">
+        <div class="demo-user-icon" style="background:var(--info-50);color:var(--info-600)"><i class="fa-solid fa-user"></i></div>
+        <h6 class="mb-1">Customer</h6><p class="text-muted-2 mb-0" style="font-size:12.5px">Customer portal</p>
+      </div>
+    </div>
+  </div>
+  <div class="text-center mt-5"><a href="index.html" class="text-muted-2"><i class="fa-solid fa-arrow-left me-1"></i>Back to Storefront</a></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+function loginAs(role,name,redirect){
+  setDemoRole(role,name);
+  showToast(`Signed in as ${name} (${role})`);
+  setTimeout(()=>{ window.location.href = redirect; }, 700);
+}
+</script>
+</body>
+</html>

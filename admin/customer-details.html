@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Details — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0" id="body"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const c = CUSTOMERS.find(x=>x.id===params.get("id")) || CUSTOMERS[0];
+initAdminPage("customers", {title:c.name, subtitle:c.email+" — "+c.phone, breadcrumb:[{label:"People"},{label:"Customers", href:"customers.html"},{label:c.name}]});
+
+const custOrders = ORDERS.filter(o=>o.customerId===c.id);
+document.getElementById("body").innerHTML = `
+<div class="tabs-pro">
+  <div class="tab-item active" data-tab="overview">Overview</div>
+  <div class="tab-item" data-tab="orders">Orders</div>
+  <div class="tab-item" data-tab="payments">Payments</div>
+  <div class="tab-item" data-tab="notes">Notes</div>
+  <div class="tab-item" data-tab="activity">Activity</div>
+</div>
+<div id="tabBody"></div>`;
+
+function overview(){
+  return `<div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card p-4 text-center">
+        <div class="avatar-circle mx-auto mb-2" style="width:60px;height:60px;font-size:20px">${initials(c.name)}</div>
+        <div class="fw-bold fs-5">${c.name}</div>
+        <div class="text-muted-2" style="font-size:12.5px">${c.city}, Sri Lanka</div>
+        <div class="divider-x"></div>
+        <div class="text-start" style="font-size:13px">
+          <div class="d-flex justify-content-between mb-2"><span class="text-muted-2">Email</span><span>${c.email}</span></div>
+          <div class="d-flex justify-content-between mb-2"><span class="text-muted-2">Phone</span><span>${c.phone}</span></div>
+          <div class="d-flex justify-content-between"><span class="text-muted-2">WhatsApp</span><span>${c.whatsapp}</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="row g-3 mb-3">
+        <div class="col-4"><div class="stat-card text-center"><div class="fs-4 fw-bold">${c.orders}</div><div class="text-muted-2" style="font-size:11.5px">Total Orders</div></div></div>
+        <div class="col-4"><div class="stat-card text-center"><div class="fs-4 fw-bold">${c.active}</div><div class="text-muted-2" style="font-size:11.5px">Active Jobs</div></div></div>
+        <div class="col-4"><div class="stat-card text-center"><div class="fs-4 fw-bold">${c.completed}</div><div class="text-muted-2" style="font-size:11.5px">Completed</div></div></div>
+      </div>
+      <div class="card p-4">
+        <h6 class="mb-3">Recent Orders</h6>
+        ${custOrders.slice(0,3).map(o=>`<div class="d-flex justify-content-between align-items-center p-2 rounded-3 mb-2" style="border:1px solid var(--gray-200)"><div><strong style="font-size:13px">${o.ref}</strong><div class="text-muted-2" style="font-size:11.5px">${o.product}</div></div>${badgeHtml(stageLabel(o.stage), stageBadgeClass(o.stage))}</div>`).join("") || '<div class="text-muted-2" style="font-size:13px">No orders yet.</div>'}
+      </div>
+    </div>
+  </div>`;
+}
+function ordersTab(){
+  return `<div class="table-card"><div class="table-responsive"><table class="table-pro w-100"><thead><tr><th>Job Ref</th><th>Product</th><th>Stage</th><th>Amount</th><th>Date</th><th>Action</th></tr></thead>
+  <tbody>${custOrders.map(o=>`<tr><td class="fw-bold">${o.ref}</td><td>${o.product}</td><td>${badgeHtml(stageLabel(o.stage), stageBadgeClass(o.stage))}</td><td>${fmtMoney(o.amount)}</td><td>${o.orderDate}</td><td><a href="order-details.html?ref=${o.ref}" class="btn btn-light btn-sm">View</a></td></tr>`).join("") || '<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-inbox"></i><h6>No orders</h6></div></td></tr>'}</tbody></table></div></div>`;
+}
+function paymentsTab(){
+  return `<div class="table-card"><div class="table-responsive"><table class="table-pro w-100"><thead><tr><th>Job Ref</th><th>Method</th><th>Amount</th><th>Status</th></tr></thead>
+  <tbody>${custOrders.map(o=>`<tr><td class="fw-bold">${o.ref}</td><td>${o.paymentMethod}</td><td>${fmtMoney(o.amount)}</td><td>${badgeHtml(o.paymentStatus, o.paymentStatus==='Verified'?'badge-completed':'badge-pending')}</td></tr>`).join("")}</tbody></table></div></div>`;
+}
+function notesTab(){
+  return `<div class="card p-4" style="max-width:600px"><h6 class="mb-2">Internal-Only Notes</h6><p class="text-muted-2" style="font-size:13px">"Prefers WhatsApp updates. Usually orders in bulk for corporate events. VIP client — priority support."</p><textarea class="form-control mb-2" rows="2" placeholder="Add a note..."></textarea><button class="btn btn-light btn-sm" onclick="showToast('Note saved')">Add Note</button></div>`;
+}
+function activityTab(){
+  return `<div class="card p-4"><div class="timeline-v">
+    <div class="tl-item done"><div class="tl-dot"><i class="fa-solid fa-check"></i></div><div style="font-size:13px">Account created</div><div class="text-muted-2" style="font-size:11px">2026-01-14</div></div>
+    <div class="tl-item done"><div class="tl-dot"><i class="fa-solid fa-check"></i></div><div style="font-size:13px">Placed order ${custOrders[0]?.ref||''}</div><div class="text-muted-2" style="font-size:11px">${c.lastOrder}</div></div>
+  </div></div>`;
+}
+const tabs = {overview,orders:ordersTab,payments:paymentsTab,notes:notesTab,activity:activityTab};
+function showTab(k){ document.getElementById("tabBody").innerHTML = tabs[k](); }
+document.querySelectorAll(".tab-item").forEach(t=>t.addEventListener("click",()=>{ document.querySelectorAll(".tab-item").forEach(x=>x.classList.remove("active")); t.classList.add("active"); showTab(t.dataset.tab); }));
+showTab("overview");
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internal Design Sign-Off — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0" id="body"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const order = getOrder(params.get("ref")) || ORDERS[0];
+initAdminPage("orders", {title:"Internal Design Sign-Off", subtitle:"Reviewed before the client ever sees the proof.", breadcrumb:[{label:"Operations"},{label:"Orders", href:"orders.html"},{label:"Internal Sign-Off"}]});
+
+const checklist = ["Matches customer brief","Correct dimensions","Correct content","Visual quality","Branding consistency"];
+document.getElementById("body").innerHTML = `
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card p-3">
+      <div style="height:360px;background:linear-gradient(135deg,var(--brand-100),var(--brand-50));border-radius:14px;display:flex;align-items:center;justify-content:center">
+        <i class="fa-solid fa-swatchbook" style="font-size:70px;color:var(--brand-500)"></i>
+      </div>
+      <div class="d-flex justify-content-between mt-3">
+        <span style="font-size:12.5px" class="text-muted-2">Job: <strong>${order.ref}</strong></span>
+        <span style="font-size:12.5px" class="text-muted-2">Proof Version: <strong>2</strong></span>
+        <span style="font-size:12.5px" class="text-muted-2">Designer: <strong>${order.assignedDesigner||'Nuwan Dias'}</strong></span>
+      </div>
+    </div>
+    <div class="card p-4 mt-3">
+      <h6 class="mb-2">Customer Brief</h6>
+      <p class="text-muted-2" style="font-size:13.5px">"${order.instructions || 'Elegant, minimal design using brand navy & gold colours.'}"</p>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card p-4">
+      <h6 class="mb-3">Quality Checklist</h6>
+      <div class="d-flex flex-column gap-2 mb-4">
+        ${checklist.map((c,i)=>`<div class="form-check"><input class="form-check-input" type="checkbox" id="chk${i}" checked><label class="form-check-label" for="chk${i}" style="font-size:13.5px">${c}</label></div>`).join("")}
+      </div>
+      <div class="d-grid gap-2">
+        <button class="btn btn-success" onclick="mockAction('Design approved and released to client for review','client-proof-history.html?ref=${order.ref}')"><i class="fa-solid fa-paper-plane"></i>Approve & Release to Client</button>
+        <button class="btn btn-outline-danger" onclick="showToast('Sent back to designer for revisions','warning')" style="border-color:#fecaca">Reject & Send Back</button>
+      </div>
+    </div>
+  </div>
+</div>`;
+</script>
+</body>
+</html>

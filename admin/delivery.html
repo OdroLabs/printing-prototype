@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery & Fulfillment — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="tabs-pro">
+      <div class="tab-item active" data-tab="digital">Digital Delivery</div>
+      <div class="tab-item" data-tab="uber">Uber Direct</div>
+      <div class="tab-item" data-tab="pickme">PickMe Flash</div>
+      <div class="tab-item" data-tab="domex">Domex</div>
+    </div>
+    <div id="tabBody"></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("delivery", {title:"Delivery & Fulfillment", subtitle:"Manage dispatch across all courier partners.", breadcrumb:[{label:"Operations"},{label:"Delivery"}]});
+
+function rowsFor(method){
+  return ORDERS.filter(o=>o.stage==="ready_dispatch"||o.stage==="dispatched").slice(0,5).map(o=>({...o,method}));
+}
+function digitalTab(){
+  const rows = rowsFor("Digital");
+  return `<div class="table-card"><div class="table-responsive"><table class="table-pro w-100">
+    <thead><tr><th>Job Ref</th><th>Customer</th><th>Product</th><th>Deliverable</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map(o=>`<tr><td class="fw-bold">${o.ref}</td><td>${o.customer}</td><td>${o.product}</td><td><i class="fa-solid fa-file-zipper me-1"></i>final_files.zip</td><td>${badgeHtml('Ready to Download','badge-completed')}</td><td><button class="btn btn-light btn-sm" onclick="showToast('Download link sent to customer (mock)')">Send Download Link</button></td></tr>`).join("")}</tbody>
+  </table></div></div>`;
+}
+function courierTab(name, live){
+  const rows = rowsFor(name);
+  return `<div class="table-card"><div class="table-responsive"><table class="table-pro w-100">
+    <thead><tr><th>Job Ref</th><th>Customer</th><th>Courier</th><th>Tracking Number</th><th>${live?'Live Tracking':'Status Update'}</th><th>Delivery Status</th><th>Actions</th></tr></thead>
+    <tbody>${rows.map((o,i)=>`<tr>
+      <td class="fw-bold">${o.ref}</td><td>${o.customer}</td><td>${name}</td>
+      <td>${name.replace(' ','').toUpperCase()}-${9000+i}</td>
+      <td>${live ? `<a href="#" onclick="showToast('Opening live tracking map (mock)');return false;">View Live Map</a>` : `<select class="form-select form-select-sm" style="width:150px" onchange="showToast('Status updated to '+this.value)"><option>Picked Up</option><option>In Transit</option><option>Out for Delivery</option><option>Delivered</option></select>`}</td>
+      <td>${badgeHtml(i===0?'Delivered':'In Transit', i===0?'badge-completed':'badge-progress')}</td>
+      <td><a href="order-details.html?ref=${o.ref}" class="btn btn-light btn-sm">View Order</a></td>
+    </tr>`).join("")}</tbody>
+  </table></div></div>
+  ${!live ? `<div class="text-muted-2 mt-2" style="font-size:12px"><i class="fa-solid fa-circle-info me-1"></i>${name} uses manual status updates until API integration is available.</div>`:''}`;
+}
+const tabs = { digital:digitalTab, uber:()=>courierTab("Uber Direct", true), pickme:()=>courierTab("PickMe Flash", false), domex:()=>courierTab("Domex", false) };
+function showTab(k){ document.getElementById("tabBody").innerHTML = tabs[k](); }
+document.querySelectorAll(".tab-item").forEach(t=>t.addEventListener("click",()=>{ document.querySelectorAll(".tab-item").forEach(x=>x.classList.remove("active")); t.classList.add("active"); showTab(t.dataset.tab); }));
+showTab("digital");
+</script>
+</body>
+</html>

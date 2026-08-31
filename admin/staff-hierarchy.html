@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff & Hierarchy — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+
+    <div class="card p-4 mb-4">
+      <h6 class="mb-4">Organizational Hierarchy</h6>
+      <div class="d-flex flex-column align-items-center gap-2" id="hierarchy"></div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-toolbar"><h6 class="mb-0">Staff Directory</h6></div>
+      <div class="table-responsive"><table class="table-pro w-100">
+        <thead><tr><th>Staff</th><th>Role</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editStaffModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Edit Staff Member</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Designation</label><select class="form-select"><option>Super Admin</option><option>Management Officer</option><option>Graphic Designer</option><option>Product Technician</option><option>Business Development Officer</option></select></div>
+        <div class="mb-3"><label class="form-label">Status</label><select class="form-select"><option>Active</option><option>On Leave</option><option>Deactivated</option></select></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="bootstrap.Modal.getInstance(document.getElementById('editStaffModal')).hide();showToast('Staff member updated')">Save Changes</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("staff-hierarchy", {title:"Staff & Hierarchy", subtitle:"Organization structure and staff directory.", breadcrumb:[{label:"People"},{label:"Staff & Hierarchy"}],
+  actionsHtml:`<button class="btn btn-primary btn-sm" onclick="showToast('Add staff form would open here')"><i class="fa-solid fa-user-plus"></i>Add Staff</button>`});
+
+const levels = ["Super Admin","Management Officer","Graphic Designer","Product Technician","Business Development Officer"];
+document.getElementById("hierarchy").innerHTML = levels.map((l,i)=>`
+  <div class="p-3 rounded-3 text-center" style="background:var(--brand-${i===0?700:i===1?600:500}); color:#fff; min-width:260px">
+    <div class="fw-bold">${l}</div>
+    <div style="font-size:11px;opacity:.85">${STAFF.filter(s=>s.role===l).length} staff</div>
+  </div>
+  ${i<levels.length-1?'<i class="fa-solid fa-arrow-down text-muted-2"></i>':''}`).join("");
+
+document.getElementById("tbody").innerHTML = STAFF.map(s=>`
+  <tr>
+    <td class="d-flex align-items-center gap-2"><span class="avatar-circle" style="width:30px;height:30px;font-size:11px">${s.initials}</span>${s.name}</td>
+    <td>${s.role}</td><td>${s.email}</td><td>${s.phone}</td>
+    <td>${badgeHtml(s.status, s.status==='Active'?'badge-completed':'badge-neutral')}</td>
+    <td>
+      <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#editStaffModal">Edit</button>
+      <button class="btn btn-light btn-sm" onclick="showToast('Viewing profile for ${s.name}')">View Profile</button>
+      <button class="btn btn-outline-danger btn-sm" onclick="showToast('${s.name} deactivated','warning')">Deactivate</button>
+    </td>
+  </tr>`).join("");
+</script>
+</body>
+</html>

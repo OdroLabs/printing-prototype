@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Pipeline — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="kanban-wrap" id="kanban"></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("orders", {title:"Job Pipeline", subtitle:"Kanban view of every job across all 8 stages.", breadcrumb:[{label:"Operations"},{label:"Orders", href:"orders.html"},{label:"Pipeline"}],
+  actionsHtml:`<a href="orders.html" class="btn btn-light btn-sm"><i class="fa-solid fa-table"></i>Table View</a>`});
+
+function priorityBadge(p){ return p==='Urgent'?'badge-danger':p==='High'?'badge-pending':'badge-neutral'; }
+document.getElementById("kanban").innerHTML = PIPELINE_STAGES.map(s=>{
+  const jobs = ORDERS.filter(o=>o.stage===s.key);
+  return `<div class="kanban-col">
+    <div class="kanban-col-head"><span class="fw-bold" style="font-size:13px">${s.label}</span><span class="kanban-count">${jobs.length}</span></div>
+    ${jobs.map(o=>`
+      <div class="kanban-card" onclick="location.href='order-details.html?ref=${o.ref}'">
+        <div class="d-flex justify-content-between align-items-start mb-1"><span class="job-ref">${o.ref}</span>${badgeHtml(o.priority, priorityBadge(o.priority))}</div>
+        <div style="font-size:12.8px;font-weight:600">${o.customer}</div>
+        <div class="text-muted-2" style="font-size:11.5px">${o.product}</div>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <span class="text-muted-2" style="font-size:10.5px">${o.jobType}</span>
+          <span class="avatar-circle" style="width:24px;height:24px;font-size:9px">${initials(o.assignedDesigner||o.assignedTechnician)}</span>
+        </div>
+      </div>`).join("") || `<div class="text-muted-2 text-center py-4" style="font-size:12px">No jobs</div>`}
+  </div>`;
+}).join("");
+</script>
+</body>
+</html>

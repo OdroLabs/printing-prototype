@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalogue Management — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="tabs-pro">
+      <div class="tab-item active" data-tab="products">Products</div>
+      <div class="tab-item" data-tab="cats">Categories</div>
+      <div class="tab-item" data-tab="attrs">Product Attributes</div>
+      <div class="tab-item" data-tab="materials">Materials</div>
+      <div class="tab-item" data-tab="finish">Finishing Options</div>
+    </div>
+    <div id="tabBody"></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("catalogue-management", {title:"Catalogue Management", subtitle:"Products, categories, and options shown in the customer catalogue.", breadcrumb:[{label:"Catalogue & Content"},{label:"Catalogue Management"}],
+  actionsHtml:`<button class="btn btn-primary btn-sm" onclick="showToast('Product editor would open here')"><i class="fa-solid fa-plus"></i>Add Product</button>`});
+const iconMap = {"Business Cards":"fa-id-card","Flyers":"fa-file-lines","Brochures":"fa-book-open","Posters":"fa-image","Banners":"fa-flag","Stickers":"fa-star","Invitations":"fa-envelope-open-text","Packaging":"fa-box","Custom Printing":"fa-shapes"};
+
+function productsTab(){
+  return `<div class="table-card"><div class="table-responsive"><table class="table-pro w-100">
+    <thead><tr><th>Image</th><th>Product</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${PRODUCTS.map(p=>`<tr>
+      <td><div style="width:36px;height:36px;background:var(--brand-50);border-radius:8px;display:flex;align-items:center;justify-content:center"><i class="fa-solid ${iconMap[p.category]} text-primary" style="font-size:14px"></i></div></td>
+      <td class="fw-bold">${p.name}</td><td>${p.category}</td><td>${fmtMoney(p.price)}</td><td>${badgeHtml('Active','badge-completed')}</td>
+      <td><button class="btn btn-light btn-sm" onclick="showToast('Editing ${p.name}')">Edit</button> <button class="btn btn-outline-danger btn-sm" onclick="showToast('${p.name} deactivated','warning')">Deactivate</button></td>
+    </tr>`).join("")}</tbody></table></div></div>`;
+}
+function simpleList(items, label){
+  return `<div class="table-card"><div class="table-toolbar"><span class="text-muted-2" style="font-size:12.5px">${items.length} items</span><button class="btn btn-primary btn-sm" onclick="showToast('${label} form would open here')"><i class="fa-solid fa-plus"></i>Add ${label}</button></div>
+  <div class="table-responsive"><table class="table-pro w-100"><thead><tr><th>Name</th><th>Used In</th><th>Actions</th></tr></thead>
+  <tbody>${items.map(i=>`<tr><td class="fw-bold">${i}</td><td>${1+Math.floor(Math.random()*8)} products</td><td><button class="btn btn-light btn-sm" onclick="showToast('Editing ${i}')">Edit</button> <button class="btn btn-outline-danger btn-sm" onclick="showToast('${i} removed','danger')">Delete</button></td></tr>`).join("")}</tbody></table></div></div>`;
+}
+const tabs = {
+  products: productsTab,
+  cats: ()=>simpleList(CATEGORIES,"Category"),
+  attrs: ()=>simpleList(["Size","Color","Orientation","Corner Style","Paper Weight"],"Attribute"),
+  materials: ()=>simpleList(["350gsm Art Card","Textured Cotton","150gsm Gloss Art","Flex Vinyl","PVC 0.76mm","Corrugated Board"],"Material"),
+  finish: ()=>simpleList(["Matte Lamination","Gloss Lamination","Spot UV","Gold Foil","Embossing","Die-Cut"],"Finishing Option"),
+};
+function showTab(k){ document.getElementById("tabBody").innerHTML = tabs[k](); }
+document.querySelectorAll(".tab-item").forEach(t=>t.addEventListener("click",()=>{ document.querySelectorAll(".tab-item").forEach(x=>x.classList.remove("active")); t.classList.add("active"); showTab(t.dataset.tab); }));
+showTab("products");
+</script>
+</body>
+</html>

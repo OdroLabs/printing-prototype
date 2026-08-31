@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Closure & Archival — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="table-card">
+      <div class="table-toolbar"><h6 class="mb-0">Closure Requests</h6></div>
+      <div class="table-responsive"><table class="table-pro w-100">
+        <thead><tr><th>Job</th><th>Customer</th><th>Requested By</th><th>Reason</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="approveModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Closure Approval</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-2" style="font-size:13px"><span class="text-muted-2">Closure Reason:</span><br><strong id="reasonText"></strong></div>
+        <div class="mb-3" style="font-size:13px"><span class="text-muted-2">Requested By:</span> <strong id="requesterText"></strong></div>
+        <label class="form-label">Internal Notes</label>
+        <textarea class="form-control mb-2" rows="2" placeholder="Optional internal notes..."></textarea>
+        <label class="form-label">Approver Note</label>
+        <textarea class="form-control" rows="2" placeholder="Note visible to requester..."></textarea>
+      </div>
+      <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal">Cancel</button><button class="btn btn-outline-danger" onclick="decideClosure('Rejected')">Reject</button><button class="btn btn-success" onclick="decideClosure('Approved')">Approve Closure</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("job-closure", {title:"Job Closure & Archival", subtitle:"Every closure request requires a mandatory reason and a separate approval step.", breadcrumb:[{label:"Operations"},{label:"Job Closure"}]});
+
+const requests = [
+  {job:"JOB-2026-00409", customer:"Ruwan Jayasuriya", requester:"Ruvini Athukorala", reason:"Customer requested cancellation after payment issue", date:"2026-08-27", status:"Pending"},
+  {job:"JOB-2026-00398", customer:"Dilani Wickramasinghe", requester:"Sampath Wickrama", reason:"Duplicate order — merged with JOB-2026-00397", date:"2026-08-25", status:"Pending"},
+  {job:"JOB-2026-00381", customer:"Nadeesha Kumari", requester:"Amali Gunasekara", reason:"Client unreachable for over 30 days", date:"2026-08-18", status:"Approved"},
+];
+document.getElementById("tbody").innerHTML = requests.map((r,i)=>`
+  <tr>
+    <td class="fw-bold">${r.job}</td><td>${r.customer}</td><td>${r.requester}</td>
+    <td style="max-width:260px">${r.reason}</td><td>${r.date}</td>
+    <td>${badgeHtml(r.status, r.status==='Approved'?'badge-completed':'badge-pending')}</td>
+    <td>${r.status==='Pending' ? `<button class="btn btn-light btn-sm" onclick='openReq(${i})'>Review</button>` : `<span class="text-muted-2" style="font-size:12px">Closed</span>`}</td>
+  </tr>`).join("");
+
+function openReq(i){
+  const r = requests[i];
+  document.getElementById("reasonText").textContent = r.reason;
+  document.getElementById("requesterText").textContent = r.requester;
+  new bootstrap.Modal(document.getElementById("approveModal")).show();
+}
+window.openReq = openReq;
+function decideClosure(decision){
+  bootstrap.Modal.getInstance(document.getElementById("approveModal")).hide();
+  showToast("Closure request "+decision.toLowerCase(), decision==='Approved'?'success':'danger');
+}
+</script>
+</body>
+</html>

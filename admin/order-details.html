@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Details — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0" id="pageContent"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const order = getOrder(params.get("ref")) || ORDERS[0];
+
+initAdminPage("orders", {title:order.ref, subtitle:order.product+" — "+order.customer, breadcrumb:[{label:"Operations"},{label:"Orders", href:"orders.html"},{label:order.ref}],
+  actionsHtml:`${badgeHtml(order.priority, order.priority==='Urgent'?'badge-danger':order.priority==='High'?'badge-pending':'badge-neutral')} ${badgeHtml(stageLabel(order.stage), stageBadgeClass(order.stage))} <a href="job-pipeline.html" class="btn btn-light btn-sm ms-2">Pipeline</a>`});
+
+document.getElementById("pageContent").innerHTML = `
+<div class="tabs-pro">
+  <div class="tab-item active" data-tab="overview">Overview</div>
+  <div class="tab-item" data-tab="pipeline">Job Pipeline</div>
+  <div class="tab-item" data-tab="files">Files</div>
+  <div class="tab-item" data-tab="payment">Payment</div>
+  <div class="tab-item" data-tab="delivery">Delivery</div>
+  <div class="tab-item" data-tab="notes">Notes</div>
+  <div class="tab-item" data-tab="activity">Activity</div>
+</div>
+<div id="tabBody"></div>
+`;
+
+const stages = pipelineForJobType(order.jobType);
+const curIdx = stages.findIndex(s=>s.key===order.stage);
+
+function tabOverview(){
+  return `<div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card p-4 mb-3">
+        <h6 class="mb-3">Order Information</h6>
+        <div class="row g-3">
+          <div class="col-md-6"><div class="text-muted-2" style="font-size:12px">Product</div><div class="fw-bold">${order.product}</div></div>
+          <div class="col-md-6"><div class="text-muted-2" style="font-size:12px">Category</div><div class="fw-bold">${order.category}</div></div>
+          <div class="col-md-6"><div class="text-muted-2" style="font-size:12px">Service Type</div><div class="fw-bold">${order.jobType}</div></div>
+          <div class="col-md-6"><div class="text-muted-2" style="font-size:12px">Quantity</div><div class="fw-bold">${order.qty}</div></div>
+          <div class="col-md-6"><div class="text-muted-2" style="font-size:12px">Order Date</div><div class="fw-bold">${order.orderDate}</div></div>
+          <div class="col-md-6"><div class="text-muted-2" style="font-size:12px">Expected Completion</div><div class="fw-bold">${order.expected}</div></div>
+          <div class="col-md-6"><div class="text-muted-2" style="font-size:12px">Source</div><div class="fw-bold">${order.source}</div></div>
+          <div class="col-md-6"><div class="text-muted-2" style="font-size:12px">BDO</div><div class="fw-bold">${order.bdo || '—'}</div></div>
+          ${order.isAiGenerated ? `<div class="col-md-6"><div class="text-muted-2" style="font-size:12px">AI Generated Artwork</div><div class="fw-bold">${badgeHtml(order.isAiGenerated, order.isAiGenerated==='Yes'?'badge-flagged':'badge-completed')}</div></div>` : ""}
+        </div>
+      </div>
+      <div class="card p-4">
+        <h6 class="mb-3">Customer Information</h6>
+        <div class="d-flex align-items-center gap-3">
+          <div class="avatar-circle" style="width:52px;height:52px">${initials(order.customer)}</div>
+          <div>
+            <div class="fw-bold">${order.customer}</div>
+            <div class="text-muted-2" style="font-size:12.5px">${order.city}, Sri Lanka &middot; ${order.customerId}</div>
+          </div>
+          <a href="customer-details.html?id=${order.customerId}" class="btn btn-light btn-sm ms-auto">View Customer</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card p-4 mb-3">
+        <h6 class="mb-3">Assignment</h6>
+        <div class="d-flex justify-content-between mb-2" style="font-size:13px"><span class="text-muted-2">Designer</span><span class="fw-bold">${order.assignedDesigner||'Unassigned'}</span></div>
+        <div class="d-flex justify-content-between" style="font-size:13px"><span class="text-muted-2">Technician</span><span class="fw-bold">${order.assignedTechnician}</span></div>
+        <button class="btn btn-light btn-sm w-100 mt-3" onclick="showToast('Reassignment panel would open here')"><i class="fa-solid fa-user-pen"></i>Reassign</button>
+      </div>
+      <div class="card p-4">
+        <h6 class="mb-3">Quick Actions</h6>
+        <div class="d-grid gap-2">
+          <a href="design-workflow.html?ref=${order.ref}" class="btn btn-outline-primary btn-sm">Design Workflow</a>
+          <a href="quality-check.html?ref=${order.ref}" class="btn btn-outline-primary btn-sm">Quality Check</a>
+          <a href="delivery.html?ref=${order.ref}" class="btn btn-outline-primary btn-sm">Delivery</a>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function tabPipeline(){
+  return `<div class="card p-4">
+    <h6 class="mb-1">Job Pipeline</h6>
+    <p class="text-muted-2 mb-2" style="font-size:12.5px">${order.jobType==='Print Only'?'Print Only jobs skip the design review stages.':''}</p>
+    <div class="pipeline-track">
+      ${stages.map((s,i)=>`<div class="pipeline-step ${i<curIdx?'done':i===curIdx?'current':''}"><div class="pipeline-node">${i<curIdx?'<i class="fa-solid fa-check"></i>':i+1}</div><div class="p-label">${s.label}</div></div>`).join("")}
+    </div>
+    <div class="d-flex gap-2 mt-3">
+      <button class="btn btn-primary btn-sm" onclick="mockAction('Job advanced to next stage (mock)')">Advance to Next Stage</button>
+      <button class="btn btn-light btn-sm" onclick="showToast('Stage rolled back (mock)','warning')">Roll Back Stage</button>
+    </div>
+  </div>`;
+}
+
+function tabFiles(){
+  return `<div class="row g-4">
+    <div class="col-md-6">
+      <div class="card p-4">
+        <h6 class="mb-3">Uploaded Files</h6>
+        <div class="file-chip"><div class="fi-icon"><i class="fa-solid fa-file-pdf"></i></div><div class="flex-grow-1"><div style="font-size:13px;font-weight:600">customer_brief.pdf</div><div class="text-muted-2" style="font-size:11.5px">1.2 MB</div></div><button class="btn btn-light btn-sm" onclick="showToast('Downloading (mock)')"><i class="fa-solid fa-download"></i></button></div>
+        <div class="file-chip"><div class="fi-icon"><i class="fa-solid fa-file-image"></i></div><div class="flex-grow-1"><div style="font-size:13px;font-weight:600">reference_logo.png</div><div class="text-muted-2" style="font-size:11.5px">840 KB</div></div><button class="btn btn-light btn-sm" onclick="showToast('Downloading (mock)')"><i class="fa-solid fa-download"></i></button></div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card p-4">
+        <h6 class="mb-3">Proof Versions</h6>
+        <div class="d-flex justify-content-between align-items-center p-2 rounded-3 mb-2" style="border:1px solid var(--gray-200)"><span style="font-size:13px">Version 2 (Current)</span>${badgeHtml('Client Reviewing','badge-pending')}</div>
+        <div class="d-flex justify-content-between align-items-center p-2 rounded-3" style="border:1px solid var(--gray-200)"><span style="font-size:13px">Version 1</span>${badgeHtml('Revision Requested','badge-neutral')}</div>
+        <a href="client-proof-history.html?ref=${order.ref}" class="btn btn-light btn-sm w-100 mt-3">View Full Proof History</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+function tabPayment(){
+  return `<div class="card p-4" style="max-width:560px">
+    <h6 class="mb-3">Payment Information</h6>
+    <div class="d-flex justify-content-between mb-2" style="font-size:13px"><span class="text-muted-2">Method</span><span class="fw-bold">${order.paymentMethod}</span></div>
+    <div class="d-flex justify-content-between mb-2" style="font-size:13px"><span class="text-muted-2">Amount</span><span class="fw-bold">${fmtMoney(order.amount)}</span></div>
+    <div class="d-flex justify-content-between mb-2" style="font-size:13px"><span class="text-muted-2">Status</span>${badgeHtml(order.paymentStatus, order.paymentStatus==='Verified'?'badge-completed':'badge-pending')}</div>
+    <div class="d-flex justify-content-between" style="font-size:13px"><span class="text-muted-2">Verified By</span><span class="fw-bold">${order.paymentStatus==='Verified'?'Amali Gunasekara':'—'}</span></div>
+    <a href="payment-verification.html" class="btn btn-light btn-sm w-100 mt-3">Go to Payment Verification</a>
+  </div>`;
+}
+function tabDelivery(){
+  return `<div class="card p-4" style="max-width:560px">
+    <h6 class="mb-3">Delivery Information</h6>
+    <div class="d-flex justify-content-between mb-2" style="font-size:13px"><span class="text-muted-2">Method</span><span class="fw-bold">Uber Direct</span></div>
+    <div class="d-flex justify-content-between mb-2" style="font-size:13px"><span class="text-muted-2">Status</span>${badgeHtml('Not Yet Dispatched','badge-neutral')}</div>
+    <a href="delivery.html" class="btn btn-light btn-sm w-100 mt-3">Go to Delivery & Fulfillment</a>
+  </div>`;
+}
+function tabNotes(){
+  return `<div class="row g-4">
+    <div class="col-md-6"><div class="card p-4"><h6 class="mb-3">Internal Notes</h6><textarea class="form-control mb-2" rows="3" placeholder="Add an internal note..."></textarea><button class="btn btn-primary btn-sm" onclick="showToast('Internal note added')">Add Note</button></div></div>
+    <div class="col-md-6"><div class="card p-4"><h6 class="mb-3">Customer-Visible Status Note</h6><textarea class="form-control mb-2" rows="3" placeholder="Add a note the customer will see...">Design proof will be ready by tomorrow.</textarea><button class="btn btn-primary btn-sm" onclick="showToast('Customer note updated')">Update Note</button></div></div>
+  </div>`;
+}
+function tabActivity(){
+  return `<div class="card p-4"><div class="timeline-v">
+    <div class="tl-item done"><div class="tl-dot"><i class="fa-solid fa-check"></i></div><div style="font-size:13px"><strong>Order created</strong> by ${order.customer}</div><div class="text-muted-2" style="font-size:11px">${order.orderDate}</div></div>
+    <div class="tl-item done"><div class="tl-dot"><i class="fa-solid fa-check"></i></div><div style="font-size:13px">Payment ${order.paymentStatus.toLowerCase()} by Amali Gunasekara</div><div class="text-muted-2" style="font-size:11px">${order.orderDate}</div></div>
+    <div class="tl-item current"><div class="tl-dot"><i class="fa-solid fa-spinner"></i></div><div style="font-size:13px">Currently at: <strong>${stageLabel(order.stage)}</strong></div><div class="text-muted-2" style="font-size:11px">Updated recently</div></div>
+  </div></div>`;
+}
+
+const tabs = {overview:tabOverview, pipeline:tabPipeline, files:tabFiles, payment:tabPayment, delivery:tabDelivery, notes:tabNotes, activity:tabActivity};
+function showTab(key){ document.getElementById("tabBody").innerHTML = tabs[key](); }
+document.querySelectorAll(".tab-item").forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll(".tab-item").forEach(x=>x.classList.remove("active")); t.classList.add("active"); showTab(t.dataset.tab);
+}));
+showTab("overview");
+</script>
+</body>
+</html>

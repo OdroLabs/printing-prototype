@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referral Records — PrintCraft Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+<div id="sidebarMount"></div>
+<div class="admin-main">
+  <div id="headerMount"></div>
+  <div class="admin-content" style="padding-top:0">
+    <div class="tabs-pro">
+      <a class="tab-item" href="bdo-dashboard.html" style="text-decoration:none">BDO Dashboard</a>
+      <a class="tab-item" href="bdo-leaderboard.html" style="text-decoration:none">Leaderboard</a>
+      <div class="tab-item active">Referral Records</div>
+    </div>
+    <div class="table-card">
+      <div class="table-toolbar"><input type="text" class="form-control" style="max-width:260px" id="searchBox" placeholder="Search customer or job..."></div>
+      <div class="table-responsive"><table class="table-pro w-100">
+        <thead><tr><th>Customer</th><th>Job</th><th>Source</th><th>BDO</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script>
+initAdminPage("bdo-dashboard", {title:"Referral Records", subtitle:"All BDO, staff, and walk-in attributed orders.", breadcrumb:[{label:"Sales & Business Dev"},{label:"Referral Records"}]});
+function render(){
+  const q = document.getElementById("searchBox").value.toLowerCase();
+  const list = ORDERS.filter(o=>!q || o.customer.toLowerCase().includes(q) || o.ref.toLowerCase().includes(q)).slice(0,20);
+  document.getElementById("tbody").innerHTML = list.map(o=>`
+    <tr><td>${o.customer}</td><td class="fw-bold">${o.ref}</td><td>${badgeHtml(o.source,'badge-neutral')}</td><td>${o.bdo||'—'}</td><td>${o.orderDate}</td><td>${badgeHtml(stageLabel(o.stage), stageBadgeClass(o.stage))}</td></tr>`).join("");
+}
+document.getElementById("searchBox").addEventListener("input", render);
+render();
+</script>
+</body>
+</html>
